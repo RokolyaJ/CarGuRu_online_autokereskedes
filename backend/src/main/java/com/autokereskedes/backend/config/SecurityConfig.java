@@ -51,7 +51,10 @@ public class SecurityConfig implements WebMvcConfigurer {
             .cors(cors -> cors.configurationSource(request -> {
                 CorsConfiguration cfg = new CorsConfiguration();
                 cfg.setAllowCredentials(true);
-                cfg.setAllowedOriginPatterns(List.of("http://localhost:3000"));
+               cfg.setAllowedOriginPatterns(List.of(
+                    "http://localhost:3000",
+                    "https://carguru-online-autokereskedes.onrender.com"
+                ));
                 cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                 cfg.setAllowedHeaders(List.of("*"));
                 cfg.setExposedHeaders(List.of("Authorization"));
@@ -69,6 +72,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                         "/api/test-email",
                         "/api/offer/**",
                         "/api/brands/**",
+                        "/api/cars/**",      
+                         "/api/cars", 
                         "/api/models/**",
                         "/api/variants/**",
                         "/api/stock/**",
