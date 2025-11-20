@@ -2,13 +2,14 @@ FROM eclipse-temurin:17-jdk-alpine
 
 WORKDIR /app
 
-COPY mvnw .
-COPY mvnw.cmd .
-COPY .mvn .mvn
-COPY pom.xml .
-RUN ./mvnw dependency:go-offline -B
+COPY backend/mvnw .
+COPY backend/mvnw.cmd .
+COPY backend/.mvn .mvn
+COPY backend/pom.xml .
+COPY backend/src ./src
 
-COPY src src
+RUN chmod +x mvnw
+RUN ./mvnw dependency:go-offline -B
 RUN ./mvnw package -DskipTests
 
 EXPOSE 8080
