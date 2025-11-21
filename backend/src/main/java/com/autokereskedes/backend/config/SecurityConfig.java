@@ -49,18 +49,21 @@ public class SecurityConfig implements WebMvcConfigurer {
 
         http
             .cors(cors -> cors.configurationSource(request -> {
-                CorsConfiguration cfg = new CorsConfiguration();
-                cfg.setAllowCredentials(true);
-               cfg.setAllowedOriginPatterns(List.of(
-                    "http://localhost:3000",
-                    "https://carguru-online-autokereskedes.onrender.com"
-                ));
-                cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                cfg.setAllowedHeaders(List.of("*"));
-                cfg.setExposedHeaders(List.of("Authorization"));
-                cfg.setMaxAge(3600L);
-                return cfg;
-            }))
+            CorsConfiguration cfg = new CorsConfiguration();
+            cfg.setAllowCredentials(true);
+            cfg.setAllowedOriginPatterns(List.of(
+                "http://localhost:3000",
+                "https://carguru-online-autokereskedes.onrender.com",
+                "https://resilient-halva-e23069.netlify.app",
+                "https://*.netlify.app"
+            ));
+            cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+            cfg.setAllowedHeaders(List.of("*"));
+            cfg.setExposedHeaders(List.of("Authorization"));
+            cfg.setMaxAge(3600L);
+            return cfg;
+        }))
+
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
