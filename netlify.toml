@@ -1,7 +1,3 @@
 [build]
-  base = "."
+  command = "CI= npm run build"
   publish = "build"
-  command = "npm run build"
-
-[dev]
-  framework = "create-react-app"
