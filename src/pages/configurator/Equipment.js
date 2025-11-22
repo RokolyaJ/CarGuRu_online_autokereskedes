@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { ConfigContext } from "../../context/ConfigContext";
-import { API_BASE_URL } from "../../apiConfig";
+import { API_BASE_URL } from "../apiConfig";;
 
 function Equipment() {
   const { brand, model } = useParams();
