@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "./AuthContext";
+import { API_BASE_URL } from "../../apiConfig";
 
 const ChatContext = createContext(null);
 
@@ -18,7 +19,7 @@ export function ChatProvider({ children }) {
 
     const loadMessages = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/messages/mine", {
+        const res = await axios.get(`${API_BASE_URL}/api/messages/mine`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const msgs = res.data || [];

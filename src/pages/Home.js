@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import FloatingActions from "../components/FloatingActions";
 
+import { API_BASE_URL } from "../apiConfig";
+
 function Home() {
   const { darkMode } = useTheme();
   const [cars, setCars] = useState([]);
@@ -24,40 +26,63 @@ function Home() {
   ];
 
   useEffect(() => {
-    setCars([
-      { id: "1", name: "Audi A4", price: "5 200 000 Ft", year: 2018, image: "/images/home_page/audi1.jpg" },
-      { id: "2", name: "Mercedes-Benz C", price: "7 500 000 Ft", year: 2020, image: "/images/home_page/mercedes-benz1.jpg" },
-      { id: "3", name: "Skoda Octavia", price: "6 200 000 Ft", year: 2019, image: "/images/home_page/skoda1.jpg" },
-    ]);
+    async function loadFeaturedCars() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/home/featured-cars`);
+        if (!res.ok) throw new Error();
 
-    setNews([
-      {
-        id: 1,
-        slug: "audi-skoda-elektromos-2026",
-        date: "2025/09/25",
-        title: "Audi és Skoda: új elektromos modellek 2026-ra",
-        summary: "Az Audi és a Skoda új elektromos SUV-modelleket fejleszt, melyek 2026-ban érkeznek.",
-        image: "/images/home_page/news/audi_and_skoda.jpg"
-      },
-      {
-        id: 2,
-        slug: "mercedes-bmw-onvezetes",
-        date: "2025/09/22",
-        title: "Mercedes és BMW: közös fejlesztés az önvezetésért",
-        summary: "A Mercedes és a BMW közösen dolgoznak a 4-es szintű önvezető rendszerek bevezetésén.",
-        image: "/images/home_page/news/mercedesz_and_bmw.jpg"
-      },
-      {
-        id: 3,
-        slug: "volkswagen-zoldebb-jovo",
-        date: "2025/09/18",
-        title: "Volkswagen-csoport: erős második negyedév, zöldebb jövő",
-        summary: "A VW-csoport 15%-kal növelte az eladásokat az elektromos járművek szegmensében.",
-        image: "/images/home_page/news/Volkswagen_results.jpg"
+        const data = await res.json();
+        setCars(data);
+      } catch {
+        setCars([
+          { id: "1", name: "Audi A4", price: "5 200 000 Ft", year: 2018, image: "/images/home_page/audi1.jpg" },
+          { id: "2", name: "Mercedes-Benz C", price: "7 500 000 Ft", year: 2020, image: "/images/home_page/mercedes-benz1.jpg" },
+          { id: "3", name: "Skoda Octavia", price: "6 200 000 Ft", year: 2019, image: "/images/home_page/skoda1.jpg" },
+        ]);
       }
-    ]);
+    }
+    loadFeaturedCars();
   }, []);
 
+  useEffect(() => {
+    async function loadNews() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/news`);
+        if (!res.ok) throw new Error();
+
+        const data = await res.json();
+        setNews(data);
+      } catch {
+        setNews([
+          {
+            id: 1,
+            slug: "audi-skoda-elektromos-2026",
+            date: "2025/09/25",
+            title: "Audi és Skoda: új elektromos modellek 2026-ra",
+            summary: "Az Audi és a Skoda új elektromos SUV-modelleket fejleszt, melyek 2026-ban érkeznek.",
+            image: "/images/home_page/news/audi_and_skoda.jpg"
+          },
+          {
+            id: 2,
+            slug: "mercedes-bmw-onvezetes",
+            date: "2025/09/22",
+            title: "Mercedes és BMW: közös fejlesztés az önvezetésért",
+            summary: "A Mercedes és a BMW közösen dolgoznak a 4-es szintű önvezető rendszerek bevezetésén.",
+            image: "/images/home_page/news/mercedesz_and_bmw.jpg"
+          },
+          {
+            id: 3,
+            slug: "volkswagen-zoldebb-jovo",
+            date: "2025/09/18",
+            title: "Volkswagen-csoport: erős második negyedév, zöldebb jövő",
+            summary: "A VW-csoport 15%-kal növelte az eladásokat az elektromos járművek szegmensében.",
+            image: "/images/home_page/news/Volkswagen_results.jpg"
+          }
+        ]);
+      }
+    }
+    loadNews();
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -65,7 +90,6 @@ function Home() {
     }, 5000);
     return () => clearInterval(interval);
   }, [sliderImages.length]);
-
 
   const styles = {
     container: {
@@ -160,7 +184,6 @@ function Home() {
         </button>
       </section>
 
-
       <section style={styles.brandsSection}>
         <h2 style={styles.brandsTitle}>Márkák áttekintése</h2>
         <div style={styles.brandsGrid}>
@@ -174,7 +197,6 @@ function Home() {
           ))}
         </div>
       </section>
-
 
       <section style={styles.featuredCars}>
         <h2 style={styles.sectionTitle}>Kiemelt ajánlataink</h2>
@@ -190,7 +212,6 @@ function Home() {
           ))}
         </div>
       </section>
-
 
       <section style={styles.newsSection}>
         <h2 style={styles.sectionTitle}>Legfrissebb híreink</h2>

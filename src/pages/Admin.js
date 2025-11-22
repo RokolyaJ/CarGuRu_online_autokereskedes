@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../apiConfig";
 
 export default function Admin() {
   const { user } = useAuth();
@@ -42,12 +43,12 @@ export default function Admin() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8080/api/admin/users", {
-        headers: {
-          ...authHeader(),
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch(`${API_BASE_URL}/api/admin/users`, {
+  headers: {
+    ...authHeader(),
+    "Content-Type": "application/json",
+  },
+});
 
       if (!res.ok) throw new Error("Nem sikerült betölteni a felhasználókat.");
       const data = await res.json();
@@ -73,16 +74,17 @@ export default function Admin() {
 
     try {
       const res = await fetch(
-        `http://localhost:8080/api/admin/users/${selectedUser.id}/reset-password`,
-        {
-          method: "PUT",
-          headers: {
-            ...authHeader(),
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ newPassword }),
-        }
-      );
+  `${API_BASE_URL}/api/admin/users/${selectedUser.id}/reset-password`,
+  {
+    method: "PUT",
+    headers: {
+      ...authHeader(),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ newPassword }),
+  }
+);
+
 
       if (!res.ok) {
         const t = await res.text();
@@ -100,15 +102,16 @@ export default function Admin() {
   const changeRole = async (id, role) => {
     try {
       const res = await fetch(
-        `http://localhost:8080/api/admin/users/${id}/role?role=${role}`,
-        {
-          method: "PUT",
-          headers: {
-            ...authHeader(),
-            "Content-Type": "application/json",
-          },
-        }
-      );
+  `${API_BASE_URL}/api/admin/users/${id}/role?role=${role}`,
+  {
+    method: "PUT",
+    headers: {
+      ...authHeader(),
+      "Content-Type": "application/json",
+    },
+  }
+);
+
 
       if (!res.ok) {
         const t = await res.text();

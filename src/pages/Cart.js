@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+import { API_BASE_URL } from "../apiConfig";
 
 export default function Cart() {
   const { token, isAuthenticated } = useAuth();
@@ -15,10 +15,13 @@ export default function Cart() {
     try {
       if (!token) return;
       setLoading(true);
-      const res = await fetch(`${API_BASE}/api/cart`, {
+
+      const res = await fetch(`${API_BASE_URL}/api/cart`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       if (!res.ok) throw new Error("Nem sikerült lekérni a kosarat.");
+
       const data = await res.json();
       setCart(data || { items: [], total: 0 });
       setError(null);
@@ -39,6 +42,13 @@ export default function Cart() {
     }
   }, [cart]);
 
+  // KÉP URL ÖSSZEÁLLÍTÁSA
+  function getImageUrl(url) {
+    if (!url) return "/no-image.png";
+    if (url.startsWith("http")) return url;
+    return `${API_BASE_URL}${url}`;
+  }
+
   function goToConfigurator(item) {
     const id = item?.variantId;
     if (!id) {
@@ -52,11 +62,13 @@ export default function Cart() {
 
   async function handleRemove(itemId) {
     try {
-      const res = await fetch(`${API_BASE}/api/cart/items/${itemId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/cart/items/${itemId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
+
       if (!res.ok) throw new Error("Nem sikerült törölni a tételt.");
+
       await fetchCart();
     } catch (err) {
       alert(err.message || "Ismeretlen hiba történt törlés közben.");
@@ -70,10 +82,11 @@ export default function Cart() {
     }
 
     const firstItem = cart.items[0];
+
     const carData = {
       id: firstItem?.variantId || 1,
       name: firstItem?.titleSnapshot || "Ismeretlen modell",
-      image: firstItem?.imageUrl || "/no-image.png",
+      image: getImageUrl(firstItem?.imageUrl),
       price: Number(firstItem?.priceSnapshot || 0),
     };
 
@@ -107,15 +120,12 @@ export default function Cart() {
 
         {cart.items.map((item) => {
           const price = Number(item?.priceSnapshot || 0);
+          const imgSrc = getImageUrl(item?.imageUrl);
 
           return (
             <div key={item.id} className="cart-card">
               <div className="cart-image">
-                {item?.imageUrl ? (
-                  <img src={item.imageUrl} alt={item?.titleSnapshot || "Termék"} />
-                ) : (
-                  <div className="no-image">Nincs kép</div>
-                )}
+                <img src={imgSrc} alt={item?.titleSnapshot || "Termék"} />
               </div>
 
               <div className="cart-info">
@@ -123,7 +133,9 @@ export default function Cart() {
                   className="clickable-title"
                   onClick={() => {
                     if (item?.vin) navigate(`/stock/${item.vin}`);
-                    else alert("Ehhez a tételhez nincs VIN. Kérlek a készletes oldalról add újra a kosárhoz.");
+                    else alert(
+                      "Ehhez a tételhez nincs VIN. Kérlek a készletes oldalról add újra a kosárhoz."
+                    );
                   }}
                 >
                   {item?.titleSnapshot || "Termék"}
@@ -131,12 +143,20 @@ export default function Cart() {
                 <p className="seller">Forgalmazza: CarGuru</p>
 
                 <div className="bottom-row">
-                  <div className="price">{price.toLocaleString("hu-HU")} Ft</div>
+                  <div className="price">
+                    {price.toLocaleString("hu-HU")} Ft
+                  </div>
                   <div className="buttons">
-                    <button onClick={() => goToConfigurator(item)} className="config-btn">
+                    <button
+                      onClick={() => goToConfigurator(item)}
+                      className="config-btn"
+                    >
                       Konfiguráció
                     </button>
-                    <button onClick={() => handleRemove(item.id)} className="remove-btn">
+                    <button
+                      onClick={() => handleRemove(item.id)}
+                      className="remove-btn"
+                    >
                       Törlés
                     </button>
                   </div>
@@ -205,7 +225,6 @@ export default function Cart() {
           background: #fff; border-radius: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.05);
           padding: 1.5rem; height: fit-content;
         }
-        .cart-summary h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 1rem; }
         .summary-row, .summary-total {
           display: flex; justify-content: space-between; font-size: 1rem; margin: 0.5rem 0;
         }
@@ -217,9 +236,6 @@ export default function Cart() {
           transition: transform 0.15s ease, background 0.3s ease;
         }
         .checkout-btn:hover { transform: translateY(-1px); background: linear-gradient(90deg, #0055cc, #002266); }
-        .cart-container { text-align: center; margin: 4rem auto; }
-        .empty { font-size: 1.1rem; color: #555; }
-        .error { color: red; }
       `}</style>
     </div>
   );

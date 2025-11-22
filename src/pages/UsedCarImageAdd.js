@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { API_BASE_URL } from "../apiConfig";
 
 
 export default function UsedCarImageAdd() {
@@ -29,11 +30,12 @@ useEffect(() => {
 
   const fetchImages = async () => {
     try {
-      if (carId) {
-        const response = await axios.get(`http://localhost:8080/api/images/${carId}`);
-        setUploadedImages(response.data || []);
-      } else if (tempId) {
-        const response = await axios.get(`http://localhost:8080/api/images/temp/${tempId}`);
+     if (carId) {
+  const response = await axios.get(`${API_BASE_URL}/api/images/${carId}`);
+  setUploadedImages(response.data || []);
+}
+ else if (tempId) {
+        const response = await axios.get(`${API_BASE_URL}/api/images/temp/${tempId}`);
         setUploadedImages(response.data || []);
       }
     } catch (err) {
@@ -75,14 +77,14 @@ const handleUpload = async () => {
     const token = localStorage.getItem("token");
 
     if (carId) {
-      await axios.post(`http://localhost:8080/api/images/upload/${carId}`, formData, {
+      await axios.post(`${API_BASE_URL}/api/images/upload/${carId}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
       });
     } else {
-      await axios.post(`http://localhost:8080/api/images/temp/${tempId}`, formData, {
+      await axios.post(`${API_BASE_URL}/api/images/temp/${tempId}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
@@ -133,7 +135,7 @@ const handleUpload = async () => {
             <div className="preview">
               {uploadedImages.map((img, index) => (
                 <div key={index} className="preview-item">
-                  <img src={`http://localhost:8080${img.image}`} alt={`uploaded-${index}`} />
+                  <img src={`${API_BASE_URL}${img.image}`} alt={`uploaded-${index}`} />
                 </div>
               ))}
             </div>

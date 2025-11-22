@@ -1,8 +1,9 @@
 import { FiHeart } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "../apiConfig";
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = API_BASE_URL;
 
 export default function FavoriteButton({ carId, size = 26 }) {
   const { user } = useAuth();

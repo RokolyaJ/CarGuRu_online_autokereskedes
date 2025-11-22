@@ -3,8 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 
+import { API_BASE_URL } from "../apiConfig";
+
 const api = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: API_BASE_URL,
   withCredentials: false,
 });
 

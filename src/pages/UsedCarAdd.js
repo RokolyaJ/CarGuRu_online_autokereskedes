@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import axios from "axios";
+import { API_BASE_URL } from "../apiConfig";
 
 export default function UsedCarAdd() {
   const [form, setForm] = useState({
@@ -118,15 +119,15 @@ export default function UsedCarAdd() {
   }, []);
 
   useEffect(() => {
-    axios.get("http://localhost:8080/api/catalog/brands").then((res) => setBrands(res.data));
-    axios.get("http://localhost:8080/api/usedcars/fuels").then((res) => setFuels(res.data));
-    axios.get("http://localhost:8080/api/usedcars/bodies").then((res) => setBodies(res.data));
+    axios.get(`${API_BASE_URL}/api/catalog/brands`).then((res) => setBrands(res.data));
+    axios.get(`${API_BASE_URL}/api/usedcars/fuels`).then((res) => setFuels(res.data));
+    axios.get(`${API_BASE_URL}/api/usedcars/bodies`).then((res) => setBodies(res.data));
   }, []);
 
   useEffect(() => {
     if (form.brand) {
       axios
-        .get(`http://localhost:8080/api/catalog/models?brand=${form.brand}`)
+        .get(`${API_BASE_URL}/api/catalog/models?brand=${form.brand}`)
         .then((res) => setModels(res.data));
     }
   }, [form.brand]);
@@ -134,7 +135,7 @@ export default function UsedCarAdd() {
   useEffect(() => {
     if (form.brand && form.model) {
       axios
-        .get("http://localhost:8080/api/engines", {
+        .get(`${API_BASE_URL}/api/engines`, {
           params: { brand: form.brand, model: form.model },
         })
         .then((res) => setEngines(res.data || []));

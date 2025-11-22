@@ -2,9 +2,10 @@ import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { ConfigContext } from "../../context/ConfigContext";
+import { API_BASE_URL } from "../../apiConfig";
 
 function Equipment() {
-  const { brand, model } = useParams(); 
+  const { brand, model } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -21,32 +22,36 @@ function Equipment() {
     "Komfort és funkció",
     "Biztonság és technika",
     "Infotainment",
-    "Tartozék"
+    "Tartozék",
   ];
 
   useEffect(() => {
     if (location.state?.selectedAppearance?.imageUrl) {
-      setAppearanceImage(location.state.selectedAppearance.imageUrl);
+      setAppearanceImage(`${API_BASE_URL}${location.state.selectedAppearance.imageUrl}`);
       setSelectedAppearance(location.state.selectedAppearance);
     }
 
     const getBrandId = (brandName) => {
       switch (brandName.toLowerCase()) {
-        case "skoda": return 1;
-        case "audi": return 2;
-        case "bmw": return 3;
-        default: return 1;
+        case "skoda":
+          return 1;
+        case "audi":
+          return 2;
+        case "bmw":
+          return 3;
+        default:
+          return 1;
       }
     };
 
     axios
-      .get(`http://localhost:8080/api/equipment/brand/${getBrandId(brand)}`)
+      .get(`${API_BASE_URL}/api/equipment/brand/${getBrandId(brand)}`)
       .then((res) => {
         setEquipmentList(res.data);
         const availableCategories = [...new Set(res.data.map((e) => e.category))];
-        const defaultCategory = preferredOrder.find((cat) =>
-          availableCategories.includes(cat)
-        ) || availableCategories[0];
+        const defaultCategory =
+          preferredOrder.find((cat) => availableCategories.includes(cat)) ||
+          availableCategories[0];
         setActiveCategory(defaultCategory);
       })
       .catch((err) => console.error("Hiba a felszerelések lekérésekor:", err));
@@ -123,7 +128,7 @@ function Equipment() {
                   <h3>{item.name}</h3>
                   {item.imageUrl && (
                     <img
-                      src={item.imageUrl}
+                      src={`${API_BASE_URL}${item.imageUrl}`}
                       alt={item.name}
                       style={styles.cardImage}
                       onError={(e) => (e.target.style.display = "none")}

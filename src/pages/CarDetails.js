@@ -1,65 +1,65 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { API_BASE_URL } from "../apiConfig";
 
 function CarDetails() {
   const { id } = useParams();
   const [car, setCar] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const dummyCars = [
-      {
-        id: "1",
-        name: "Audi A4",
-        price: "5 200 000 Ft",
-        year: 2018,
-        description: "Megbízható és elegáns Audi A4, kiváló állapotban."
-      },
-      {
-        id: "2",
-        name: "BMW 3",
-        price: "6 800 000 Ft",
-        year: 2019,
-        description: "Sportos BMW 3-as sorozat, erős motorral."
-      },
-      {
-        id: "3",
-        name: "Mercedes C",
-        price: "7 500 000 Ft",
-        year: 2020,
-        description: "Luxus Mercedes C osztály, modern extrákkal."
-      },
-      {
-        id: "4",
-        name: "Volkswagen Golf",
-        price: "3 900 000 Ft",
-        year: 2017,
-        description: "Kompakt és gazdaságos Volkswagen Golf."
+    const loadCar = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/usedcars/${id}`);
+        if (!response.ok) {
+          throw new Error("Nem található az autó.");
+        }
+
+        const data = await response.json();
+        setCar(data);
+      } catch (err) {
+        console.error("Hiba:", err);
+        setError("Az autó nem található vagy hiba történt a betöltés során.");
+      } finally {
+        setLoading(false);
       }
-    ];
+    };
 
-
-    const selectedCar = dummyCars.find((car) => car.id === id);
-    setCar(selectedCar || null);
+    loadCar();
   }, [id]);
 
-  if (!car) {
-    return <p>Betöltés...</p>;
-  }
+  if (loading) return <p>Betöltés...</p>;
+  if (error) return <p>{error}</p>;
+  if (!car) return <p>Nem található autó.</p>;
+
+  const imageUrl =
+    car.images && car.images.length > 0
+      ? `${API_BASE_URL}${car.images[0].url}`
+      : "/images/default-car.png";
 
   return (
     <div style={styles.container}>
-      <h2>{car.name}</h2>
-      <img src={car.image} alt={car.name} style={styles.image} />
-      <p><strong>Ár:</strong> {car.price}</p>
+      <h2>{car.make} {car.model}</h2>
+
+      <img
+        src={imageUrl}
+        alt={car.make + " " + car.model}
+        style={styles.image}
+      />
+
+      <p><strong>Ár:</strong> {car.price?.toLocaleString("hu-HU")} Ft</p>
       <p><strong>Évjárat:</strong> {car.year}</p>
-      <p><strong>Leírás:</strong> {car.description || "Nincs megadva"}</p>
+      <p><strong>Futott km:</strong> {car.mileage?.toLocaleString()} km</p>
+
+      <p><strong>Leírás:</strong><br />{car.description || "Nincs megadva."}</p>
     </div>
   );
 }
 
 const styles = {
   container: { textAlign: "center", padding: "20px" },
-  image: { width: "80%", maxWidth: "600px", borderRadius: "10px" }
+  image: { width: "80%", maxWidth: "600px", borderRadius: "10px", marginBottom: "20px" }
 };
 
 export default CarDetails;

@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Car, CreditCard, Calendar, AlertCircle, User, Truck, ShieldCheck } from "lucide-react";
+import { API_BASE_URL } from "../apiConfig";
 
 export default function MyOrdersPage() {
   const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-  const baseUrl = "http://localhost:8080";
+const baseUrl = API_BASE_URL;
 
   useEffect(() => {
     if (!user || !user.id) {

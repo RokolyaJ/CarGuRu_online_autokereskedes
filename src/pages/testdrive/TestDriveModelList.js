@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../apiConfig";
 
 function TestDriveModelList() {
   const { brandName } = useParams();
@@ -14,20 +14,20 @@ function TestDriveModelList() {
   const [selectedDealer, setSelectedDealer] = useState("");
   const navigate = useNavigate();
 
-
   const getCarImage = (brand, model) => {
     if (!brand || !model) return "/images/default-car.png";
 
     const formattedModel = model
       .toLowerCase()
-      .replace(/[\s–-]+/g, "_")      
-      .replace(/[^a-z0-9_]/g, "");   
+      .replace(/[\s–-]+/g, "_")
+      .replace(/[^a-z0-9_]/g, "");
 
     return `/images/new_cars/${brand.toLowerCase()}/${formattedModel}.jpg`;
   };
 
   useEffect(() => {
-    fetch(`http://localhost:8080/api/stock/full-variants/by-brand/${brandName}`)
+    // ---- VARIÁNSOK ----
+    fetch(`${API_BASE_URL}/api/stock/full-variants/by-brand/${brandName}`)
       .then((res) => res.json())
       .then((data) => {
         setVariants(data);
@@ -36,7 +36,8 @@ function TestDriveModelList() {
       })
       .catch((err) => console.error("Hiba az autók betöltésekor:", err));
 
-    fetch(`http://localhost:8080/api/stock/stores/by-brand/${brandName}`)
+    // ---- KERESKEDÉSEK ----
+    fetch(`${API_BASE_URL}/api/stock/stores/by-brand/${brandName}`)
       .then((res) => res.json())
       .then((stores) => {
         setDealers(
@@ -51,21 +52,25 @@ function TestDriveModelList() {
 
   useEffect(() => {
     let filtered = [...variants];
+
     if (selectedModel) {
       filtered = filtered.filter(
         (v) => v.model?.toLowerCase() === selectedModel.toLowerCase()
       );
     }
+
     if (selectedFuel) {
       filtered = filtered.filter(
         (v) => v.fuel?.toLowerCase() === selectedFuel.toLowerCase()
       );
     }
+
     if (selectedDealer) {
       filtered = filtered.filter(
         (v) => v.storeName?.toLowerCase() === selectedDealer.toLowerCase()
       );
     }
+
     setFilteredVariants(filtered);
   }, [selectedModel, selectedFuel, selectedDealer, variants]);
 
@@ -77,6 +82,7 @@ function TestDriveModelList() {
 
       <div style={{ display: "flex", justifyContent: "center", gap: "40px", flexWrap: "wrap" }}>
         
+        {/* ---- BAL OLDALI SZŰRŐ ---- */}
         <div
           style={{
             width: "260px",
@@ -137,6 +143,7 @@ function TestDriveModelList() {
           />
         </div>
 
+        {/* ---- JOBB OLDAL LISTA ---- */}
         <div style={{ flex: 1, display: "flex", flexWrap: "wrap", gap: "25px", justifyContent: "center" }}>
           {filteredVariants.length > 0 ? (
             filteredVariants.map((v) => (
@@ -150,46 +157,50 @@ function TestDriveModelList() {
                   padding: "20px",
                 }}
               >
-              <img
-  src={v.imageUrl || "/images/default-car.png"}
-  alt={v.model}
-  onError={(e) => (e.target.src = "/images/default-car.png")}
-  style={{
-    width: "100%",
-    height: "180px",
-    objectFit: "cover",
-    borderRadius: "10px",
-    marginBottom: "10px",
-  }}
-/>
+                <img
+                  src={
+                    v.imageUrl
+                      ? `${API_BASE_URL}${v.imageUrl}`
+                      : "/images/default-car.png"
+                  }
+                  alt={v.model}
+                  onError={(e) => (e.target.src = "/images/default-car.png")}
+                  style={{
+                    width: "100%",
+                    height: "180px",
+                    objectFit: "cover",
+                    borderRadius: "10px",
+                    marginBottom: "10px",
+                  }}
+                />
 
-<h2>{v.model} {v.variant && `– ${v.variant}`}</h2>
-<p><strong>Ár:</strong> {v.price?.toLocaleString()} Ft</p>
-<p><strong>Teljesítmény:</strong> {v.powerHp ? `${v.powerHp} LE` : "—"}</p>
-<p><strong>Üzemanyag:</strong> {v.fuel || "—"}</p>
-<p><strong>Váltó:</strong> {v.transmission || "—"}</p>
-<p><strong>Szalon:</strong> {v.storeName || "Nincs megadva"} ({v.city})</p>
+                <h2>{v.model} {v.variant && `– ${v.variant}`}</h2>
+                <p><strong>Ár:</strong> {v.price?.toLocaleString()} Ft</p>
+                <p><strong>Teljesítmény:</strong> {v.powerHp ? `${v.powerHp} LE` : "—"}</p>
+                <p><strong>Üzemanyag:</strong> {v.fuel || "—"}</p>
+                <p><strong>Váltó:</strong> {v.transmission || "—"}</p>
+                <p><strong>Szalon:</strong> {v.storeName || "Nincs megadva"} ({v.city})</p>
 
-               <button
-  style={{
-    width: "100%",
-    padding: "10px 0",
-    backgroundColor: "#28a745",
-    color: "white",
-    border: "none",
-    borderRadius: "8px",
-    marginTop: "10px",
-    cursor: "pointer",
-    fontWeight: "bold",
-  }}
-  onClick={() =>
-    navigate(`/test-drive/${brandName}/${v.id}/booking`, {
-      state: { car: v }
-    })
-  }
->
-  Kiválasztom
-</button>
+                <button
+                  style={{
+                    width: "100%",
+                    padding: "10px 0",
+                    backgroundColor: "#28a745",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "8px",
+                    marginTop: "10px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                  }}
+                  onClick={() =>
+                    navigate(`/test-drive/${brandName}/${v.id}/booking`, {
+                      state: { car: v },
+                    })
+                  }
+                >
+                  Kiválasztom
+                </button>
               </div>
             ))
           ) : (

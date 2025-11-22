@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../apiConfig";
 
 export default function Dashboard() {
   const [vin, setVin] = useState("");
@@ -17,7 +18,7 @@ export default function Dashboard() {
     setError("");
 
     try {
-      const response = await fetch(`/api/purchases/${vin}`);
+      const response = await fetch(`${API_BASE_URL}/api/purchases/${vin}`);
       if (!response.ok) throw new Error("Nem található jármű ezzel a VIN-nel.");
       const result = await response.json();
 
@@ -30,26 +31,64 @@ export default function Dashboard() {
   };
 
   return (
-    <div style={{ maxWidth: "800px", margin: "40px auto", padding: "20px", fontFamily: "sans-serif" }}>
-      <h1 style={{ fontSize: "28px", fontWeight: "bold", marginBottom: "20px" }}>Jármű hozzáadása</h1>
-      <p>A folytatáshoz szüksége lesz az alvázszámra (VIN) és a regisztráció országára/régiójára.</p>
+    <div
+      style={{
+        maxWidth: "800px",
+        margin: "40px auto",
+        padding: "20px",
+        fontFamily: "sans-serif",
+      }}
+    >
+      <h1 style={{ fontSize: "28px", fontWeight: "bold", marginBottom: "20px" }}>
+        Jármű hozzáadása
+      </h1>
+      <p>
+        A folytatáshoz szüksége lesz az alvázszámra (VIN) és a regisztráció
+        országára/régiójára.
+      </p>
 
       <div style={{ marginTop: "20px" }}>
-        <label style={{ display: "block", fontWeight: "bold", marginBottom: "8px" }}>Gépjármű azonosító szám*</label>
+        <label
+          style={{
+            display: "block",
+            fontWeight: "bold",
+            marginBottom: "8px",
+          }}
+        >
+          Gépjármű azonosító szám*
+        </label>
         <input
           type="text"
           value={vin}
           onChange={(e) => setVin(e.target.value)}
           placeholder="Kérjük, adja meg a 17 jegyű számot!"
-          style={{ width: "100%", padding: "10px", border: "1px solid #ccc", borderRadius: "4px" }}
+          style={{
+            width: "100%",
+            padding: "10px",
+            border: "1px solid #ccc",
+            borderRadius: "4px",
+          }}
         />
       </div>
 
       <div style={{ marginTop: "20px" }}>
-        <label style={{ display: "block", fontWeight: "bold", marginBottom: "8px" }}>Forgalomba helyezés országa/régiója</label>
+        <label
+          style={{
+            display: "block",
+            fontWeight: "bold",
+            marginBottom: "8px",
+          }}
+        >
+          Forgalomba helyezés országa/régiója
+        </label>
         <select
           defaultValue="Magyarország"
-          style={{ width: "100%", padding: "10px", border: "1px solid #ccc", borderRadius: "4px" }}
+          style={{
+            width: "100%",
+            padding: "10px",
+            border: "1px solid #ccc",
+            borderRadius: "4px",
+          }}
         >
           <option>Magyarország</option>
         </select>
@@ -72,7 +111,9 @@ export default function Dashboard() {
         {loading ? "Keresés..." : "Tovább"}
       </button>
 
-      {error && <p style={{ color: "red", marginTop: "20px" }}>{error}</p>}
+      {error && (
+        <p style={{ color: "red", marginTop: "20px" }}>{error}</p>
+      )}
     </div>
   );
 }

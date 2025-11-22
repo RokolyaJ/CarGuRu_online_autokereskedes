@@ -8,8 +8,9 @@ const API_BASE = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
 const StockVehiclePage = () => {
   const { vin } = useParams();
 
-  const { user, token: contextToken, isAuthenticated } = useAuth();
-  const token = contextToken || user?.token || null;
+  const { user } = useAuth();
+const token = user?.token || null;
+const isAuthenticated = !!user;
 
   const [vehicle, setVehicle] = useState(null);
   const [loading, setLoading] = useState(true);

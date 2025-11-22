@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
+import { API_BASE_URL } from "../apiConfig";   // <<< FONTOS!
 
 const styles = {
   page: {
@@ -75,7 +76,8 @@ const styles = {
 const TestDriveBookingPage = () => {
   const { state } = useLocation();
   const selectedCar = state?.car;
-console.log("Kiválasztott autó:", selectedCar);
+
+  console.log("Kiválasztott autó:", selectedCar);
 
   const [form, setForm] = useState({
     fullName: "",
@@ -90,50 +92,38 @@ console.log("Kiválasztott autó:", selectedCar);
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-   await axios.post("http://localhost:8080/api/test-drive", {
-    vehicleId: selectedCar.id,
+    if (!selectedCar) {
+      alert("Nincs autó kiválasztva!");
+      return;
+    }
 
-    brand: selectedCar.brand,
+    try {
+      await axios.post(`${API_BASE_URL}/api/test-drive`, {
+        vehicleId: selectedCar.id,
+        brand: selectedCar.make || selectedCar.brand || "Ismeretlen",
+        model: selectedCar.model,
+        variant: selectedCar.variant,
+        fullName: form.fullName,
+        email: form.email,
+        phone: form.phone,
+        date: form.date,
+        price: selectedCar.price,
+        fuel: selectedCar.fuel,
+        powerHp: selectedCar.powerHp,
+        transmission: selectedCar.transmission,
+        storeName: selectedCar.storeName,
+        city: selectedCar.city,
+      });
 
-    brand: selectedCar.make || selectedCar.brand || "Audi",
-
-    model: selectedCar.model,
-    variant: selectedCar.variant,
-
-    fullName: form.fullName,
-    email: form.email,
-    phone: form.phone,
-    date: form.date,
-
-    price: selectedCar.price,
-    fuel: selectedCar.fuel,
-    powerHp: selectedCar.powerHp,
-    transmission: selectedCar.transmission,
-    storeName: selectedCar.storeName,
-    city: selectedCar.city,
-});
-
-console.log("Küldött adat:", {
-  brand: selectedCar.brand,
-  model: selectedCar.model,
-  variant: selectedCar.variant
-});
-
-
-
-    alert("Sikeres foglalás! Hamarosan emailben kap visszaigazolást.");
-  } catch (err) {
-    console.error(err);
-    alert("Hiba történt!");
-  }
-};
-
-
-
+      alert("Sikeres foglalás! Hamarosan emailben kap visszaigazolást.");
+    } catch (err) {
+      console.error(err);
+      alert("Hiba történt a foglalás során!");
+    }
+  };
 
   return (
     <div style={styles.page}>
@@ -142,7 +132,11 @@ console.log("Küldött adat:", {
       <div style={styles.container}>
         <div style={styles.carDetails}>
           <img
-            src={selectedCar?.imageUrl || "/images/default-car.png"}
+            src={
+              selectedCar?.imageUrl
+                ? `${API_BASE_URL}${selectedCar.imageUrl}`
+                : "/images/default-car.png"
+            }
             alt={selectedCar?.model}
             style={styles.carImage}
           />
@@ -158,25 +152,43 @@ console.log("Küldött adat:", {
         <form style={styles.form} onSubmit={handleSubmit}>
           <h3>Kérjük, töltse ki az alábbi űrlapot!</h3>
 
-          <input type="text" name="fullName" placeholder="Teljes név"
-            style={styles.input} onChange={handleChange} required />
+          <input
+            type="text"
+            name="fullName"
+            placeholder="Teljes név"
+            style={styles.input}
+            onChange={handleChange}
+            required
+          />
 
-          <input type="email" name="email" placeholder="E-mail cím"
-            style={styles.input} onChange={handleChange} required />
+          <input
+            type="email"
+            name="email"
+            placeholder="E-mail cím"
+            style={styles.input}
+            onChange={handleChange}
+            required
+          />
 
-          <input type="text" name="phone" placeholder="Telefonszám (pl. 06201234567)"
-            style={styles.input} onChange={handleChange} required />
+          <input
+            type="text"
+            name="phone"
+            placeholder="Telefonszám (pl. 06201234567)"
+            style={styles.input}
+            onChange={handleChange}
+            required
+          />
 
-         <label style={styles.label}>Válasszon dátumot (csak munkanapok):</label>
-<select name="date" style={styles.input} onChange={handleChange} required>
-  <option value="">Válassz dátumot</option>
-  {getNextWorkdays(10).map((d, i) => (
-    <option key={i} value={d.toISOString().split("T")[0]}>
-      {d.toISOString().split("T")[0]}
-    </option>
-  ))}
-</select>
+          <label style={styles.label}>Válasszon dátumot (csak munkanapok):</label>
 
+          <select name="date" style={styles.input} onChange={handleChange} required>
+            <option value="">Válassz dátumot</option>
+            {getNextWorkdays(10).map((d, i) => (
+              <option key={i} value={d.toISOString().split("T")[0]}>
+                {d.toISOString().split("T")[0]}
+              </option>
+            ))}
+          </select>
 
           <button
             type="submit"
@@ -192,31 +204,19 @@ console.log("Küldött adat:", {
   );
 };
 
-function getTomorrow() {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  return d.toISOString().split("T")[0];
-}
-
-function getNextWeek() {
-  const d = new Date();
-  d.setDate(d.getDate() + 7);
-  return d.toISOString().split("T")[0];
-}
 function getNextWorkdays(count = 10) {
   const days = [];
   let date = new Date();
-  date.setDate(date.getDate() + 1); 
+  date.setDate(date.getDate() + 1);
 
   while (days.length < count) {
     const day = date.getDay();
-    if (day !== 0 && day !== 6) { 
+    if (day !== 0 && day !== 6) {
       days.push(new Date(date));
     }
     date.setDate(date.getDate() + 1);
   }
   return days;
 }
-
 
 export default TestDriveBookingPage;

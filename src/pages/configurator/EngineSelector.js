@@ -2,8 +2,9 @@ import React, { useEffect, useState, useContext, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ConfigContext } from "../../context/ConfigContext";
+import { API_BASE_URL } from "../../apiConfig";
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+const API_BASE = API_BASE_URL;
 
 function EngineSelector() {
   const { brand, model, variantId } = useParams();
@@ -91,14 +92,14 @@ function EngineSelector() {
           <div style={styles.stickyBox}>
             {hasImage ? (
               <img
-                src={variantData.imageUrl}
+                src={`${API_BASE}${variantData.imageUrl}`}
                 alt="Autó"
                 style={styles.carImage}
                 onClick={openImageModal}
                 onError={() => setImageAvailable(false)}
               />
             ) : (
-              <div style={styles.noImageBox} onClick={(e) => e.stopPropagation()}>
+              <div style={styles.noImageBox}>
                 <span style={styles.noImageText}>Nincs kép</span>
               </div>
             )}
@@ -122,9 +123,7 @@ function EngineSelector() {
           <h2 style={styles.heading}>Motor kiválasztása</h2>
 
           {engines.length === 0 && (
-            <p style={{ marginTop: 8 }}>
-              Nincs elérhető motor ehhez a változathoz vagy hiba történt a lekéréskor.
-            </p>
+            <p>Nincs elérhető motor ehhez a változathoz.</p>
           )}
 
           {Object.entries(groupedEngines).map(([fuelType, items]) => (
@@ -193,10 +192,9 @@ function EngineSelector() {
       {modalOpen && hasImage && (
         <div style={styles.modalOverlay} onClick={() => setModalOpen(false)}>
           <img
-            src={variantData.imageUrl}
+            src={`${API_BASE}${variantData.imageUrl}`}
             alt="Nagyított autó"
             style={styles.modalImage}
-            onError={() => setImageAvailable(false)}
           />
         </div>
       )}

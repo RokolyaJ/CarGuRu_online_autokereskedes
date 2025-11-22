@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../apiConfig";
 
 const api = axios.create({
-  baseURL: "http://localhost:8080/api"
+  baseURL: `${API_BASE_URL}/api`
 });
 
 api.interceptors.request.use((config) => {
@@ -60,7 +61,13 @@ const UsedMyCar = () => {
             <div key={car.id} style={styles.card}>
               <div style={styles.imageWrapper}>
                 <img
-                  src={car.imageUrl || car.image || "/placeholder.png"}
+                  src={
+  car.imageUrl
+    ? `${API_BASE_URL}${car.imageUrl}`
+    : car.image
+      ? `${API_BASE_URL}${car.image}`
+      : "/placeholder.png"
+}
                   alt={`${car.brand} ${car.model}`}
                   style={styles.image}
                 />

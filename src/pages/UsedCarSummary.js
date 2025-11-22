@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/Navbar";
+import { API_BASE_URL } from "../apiConfig";
 
 export default function UsedCarSummary() {
   const { id: carId } = useParams();
@@ -36,28 +37,27 @@ const tempId = tempIdFromUrl || localStorage.getItem("tempId");
     console.log("Beküldött adat:", parsed);
 
     const carResponse = await axios.post(
-      "http://localhost:8080/api/usedcars",
-      parsed,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        withCredentials: false,
-      }
-    );
+  `${API_BASE_URL}/api/usedcars`,
+  parsed,
+  {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    withCredentials: false,
+  }
+);
 
     const newCarId = carResponse.data.id;
     console.log("Autó létrehozva, ID:", newCarId);
 
     if (tempId) {
       await axios.post(
-        `http://localhost:8080/api/images/assign/${tempId}/${newCarId}`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+  `${API_BASE_URL}/api/images/assign/${tempId}/${newCarId}`,
+  {},
+  { headers: { Authorization: `Bearer ${token}` } }
+);
+
       console.log("Képek hozzárendelve a hirdetéshez");
     }
 
@@ -88,13 +88,13 @@ const tempId = tempIdFromUrl || localStorage.getItem("tempId");
             setCarData(parsed.car); 
           }
 
-          const imgRes = await axios.get(`http://localhost:8080/api/images/temp/${tempId}`);
+          const imgRes = await axios.get(`${API_BASE_URL}/api/images/temp/${tempId}`);
           setImages(imgRes.data || []);
         } else if (carId) {
-          const resCar = await axios.get(`http://localhost:8080/api/usedcars/${carId}`);
+          const resCar = await axios.get(`${API_BASE_URL}/api/usedcars/${carId}`);
           setCarData(resCar.data);
 
-          const imgRes = await axios.get(`http://localhost:8080/api/images/${carId}`);
+          const imgRes = await axios.get(`${API_BASE_URL}/api/images/${carId}`);
           setImages(imgRes.data || []);
         }
       } catch (err) {
@@ -106,7 +106,7 @@ const tempId = tempIdFromUrl || localStorage.getItem("tempId");
 
   useEffect(() => {
     if (images.length > 0) {
-      setSelectedImage(`http://localhost:8080${images[0].image}`);
+      setSelectedImage(`${API_BASE_URL}${images[0].image}`);
     }
   }, [images]);
 
@@ -141,7 +141,7 @@ const tempId = tempIdFromUrl || localStorage.getItem("tempId");
               style={{ marginTop: "10px", display: "flex", flexWrap: "wrap" }}
             >
               {images.map((img, index) => {
-                const fullImgUrl = `http://localhost:8080${img.image}`;
+                const fullImgUrl = `${API_BASE_URL}${img.image}`;
                 return (
                   <img
                     key={index}

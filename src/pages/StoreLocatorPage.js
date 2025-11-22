@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import L from "leaflet";
+import { API_BASE_URL } from "../apiConfig";
 
 const StoreLocatorPage = () => {
   const [stores, setStores] = useState([]);
@@ -10,9 +11,10 @@ const StoreLocatorPage = () => {
   const [searchName, setSearchName] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   const mapRef = useRef(null);
 
-  const baseUrl = "http://localhost:8080";
+  const baseUrl = API_BASE_URL;
 
   useEffect(() => {
     async function fetchStores() {
@@ -29,7 +31,7 @@ const StoreLocatorPage = () => {
       }
     }
     fetchStores();
-  }, []);
+  }, [baseUrl]);
 
   useEffect(() => {
     const filtered = stores.filter(
@@ -50,7 +52,7 @@ const StoreLocatorPage = () => {
         top: auto !important;
         left: auto !important;
         z-index: 9999 !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
         border-radius: 10px;
       }
       .leaflet-bottom.leaflet-right {
@@ -59,9 +61,7 @@ const StoreLocatorPage = () => {
       }
     `;
     document.head.appendChild(style);
-    return () => {
-      document.head.removeChild(style);
-    };
+    return () => document.head.removeChild(style);
   }, []);
 
   const defaultPosition = [47.1625, 19.5033];
@@ -80,7 +80,7 @@ const StoreLocatorPage = () => {
     const coords = getCityCoords(store.city);
 
     const map = mapRef.current;
-    if (map && map.flyTo) {
+    if (map) {
       map.flyTo(coords, 14, {
         animate: true,
         duration: 1.5,
@@ -119,9 +119,6 @@ const StoreLocatorPage = () => {
           padding: "18px 20px",
           backdropFilter: "blur(6px)",
           border: "1px solid rgba(0,0,0,0.05)",
-          transition: "transform 0.3s ease, opacity 0.3s ease",
-          transform: selectedStore ? "translateX(0)" : "translateX(0)",
-          opacity: 1,
         }}
       >
         {selectedStore === null ? (
@@ -130,15 +127,9 @@ const StoreLocatorPage = () => {
               style={{
                 fontSize: "1.3rem",
                 marginBottom: "14px",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
                 fontWeight: "700",
               }}
             >
-              <span role="img" aria-label="search">
-              
-              </span>{" "}
               Keresés
             </h2>
 
@@ -163,8 +154,6 @@ const StoreLocatorPage = () => {
               onChange={(e) => setSearchName(e.target.value)}
               style={inputStyle}
             />
-
-           
 
             <hr style={{ margin: "18px 0" }} />
 
@@ -197,29 +186,28 @@ const StoreLocatorPage = () => {
         ) : (
           <>
             <button
-  onClick={() => {
-    setSelectedStore(null);
-    const map = mapRef.current;
-    if (map && map.flyTo) {
-      map.flyTo([47.1625, 19.5033], 7, {
-        animate: true,
-        duration: 1.5,
-      });
-    }
-  }}
-  style={{
-    background: "none",
-    border: "none",
-    color: "#007bff",
-    cursor: "pointer",
-    marginBottom: "10px",
-    fontWeight: "600",
-    fontSize: "0.9rem",
-  }}
->
-  Vissza
-</button>
-
+              onClick={() => {
+                setSelectedStore(null);
+                const map = mapRef.current;
+                if (map) {
+                  map.flyTo(defaultPosition, 7, {
+                    animate: true,
+                    duration: 1.5,
+                  });
+                }
+              }}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#007bff",
+                cursor: "pointer",
+                marginBottom: "10px",
+                fontWeight: "600",
+                fontSize: "0.9rem",
+              }}
+            >
+              Vissza
+            </button>
 
             <h3 style={{ fontSize: "1.2rem", fontWeight: "700" }}>
               {selectedStore.storeName}
@@ -227,16 +215,6 @@ const StoreLocatorPage = () => {
             <p style={{ marginBottom: "8px", color: "#333" }}>
               {selectedStore.city}, {selectedStore.address}
             </p>
-
-            <div style={{ marginTop: "15px" }}>
-              <p style={{ margin: "6px 0" }}>
-                Email: info@{selectedStore.city.toLowerCase()}.hu
-              </p>
-              <p style={{ margin: "6px 0" }}>
-                Weboldal: www.
-                {selectedStore.storeName.replace(/\s/g, "").toLowerCase()}.hu
-              </p>
-            </div>
 
             <button
               style={{
@@ -263,26 +241,26 @@ const StoreLocatorPage = () => {
         )}
       </div>
 
-      <div style={{ flex: 1, position: "relative", height: "100%" }}>
+      {/* MAP */}
+      <div style={{ flex: 1 }}>
         <MapContainer
           center={defaultPosition}
           zoom={7}
           scrollWheelZoom={true}
           style={{ height: "100%", width: "100%" }}
-          ref={mapRef}
+          whenCreated={(map) => (mapRef.current = map)} 
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
+            attribution="&copy; OpenStreetMap"
           />
+
           {filteredStores.map((store) => (
             <Marker
               key={store.id}
               position={getCityCoords(store.city)}
               icon={customIcon}
-              eventHandlers={{
-                click: () => handleSelectStore(store),
-              }}
+              eventHandlers={{ click: () => handleSelectStore(store) }}
             />
           ))}
         </MapContainer>
@@ -325,18 +303,6 @@ const inputStyle = {
   marginBottom: "10px",
   outline: "none",
   fontSize: "0.9rem",
-};
-
-const filterButton = {
-  flex: 1,
-  border: "1px solid #ccc",
-  borderRadius: "6px",
-  padding: "7px",
-  background: "#f9fafb",
-  cursor: "pointer",
-  fontWeight: "600",
-  fontSize: "0.9rem",
-  transition: "0.2s",
 };
 
 export default StoreLocatorPage;

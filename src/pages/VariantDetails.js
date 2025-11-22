@@ -5,6 +5,7 @@ import axios from "axios";
 export default function VariantDetails() {
   const { variantId } = useParams();
   const navigate = useNavigate();
+const API_BASE_URL = "http://localhost:8080";
 
   const [variant, setVariant] = useState(null);
   const [engines, setEngines] = useState([]);
@@ -212,7 +213,12 @@ export default function VariantDetails() {
         <div style={styles.heroImgBox}>
           <img
             alt={variant.name}
-            src={variant.imageUrl || "/images/car-placeholder.png"}
+            src={
+  variant.imageUrl
+    ? `${API_BASE_URL}${variant.imageUrl}`
+    : "/images/car-placeholder.png"
+}
+
             style={styles.heroImg}
           />
         </div>
@@ -290,7 +296,7 @@ export default function VariantDetails() {
                       </button>
                       <img
                         key={currentImage}
-                        src={exteriorImages[currentImage]}
+                        src={`${API_BASE_URL}${exteriorImages[currentImage]}`}
                         alt={`${variant.name} külső ${currentImage + 1}`}
                         style={styles.carouselImage}
                       />
@@ -326,7 +332,7 @@ export default function VariantDetails() {
                       </button>
                       <img
                         key={currentInteriorImage}
-                        src={interiorImages[currentInteriorImage]}
+                        src={`${API_BASE_URL}${interiorImages[currentInteriorImage]}`}
                         alt={`${variant.name} belső ${
                           currentInteriorImage + 1
                         }`}
@@ -380,15 +386,15 @@ export default function VariantDetails() {
 
           <div style={styles.techContent}>
             <img
-              src={
-                activeTech === "driver"
-                  ? variant.driverAssistanceImageUrl
-                  : activeTech === "safe"
-                  ? variant.safeAssistanceImageUrl
-                  : activeTech === "matrix"
-                  ? variant.matrixLightImageUrl
-                  : variant.parkingAssistanceImageUrl
-              }
+  src={
+    activeTech === "driver"
+      ? `${API_BASE_URL}${variant.driverAssistanceImageUrl}`
+      : activeTech === "safe"
+      ? `${API_BASE_URL}${variant.safeAssistanceImageUrl}`
+      : activeTech === "matrix"
+      ? `${API_BASE_URL}${variant.matrixLightImageUrl}`
+      : `${API_BASE_URL}${variant.parkingAssistanceImageUrl}`
+  }
               alt="Technology feature"
               style={styles.techImage}
             />
@@ -419,7 +425,11 @@ export default function VariantDetails() {
               ‹
             </button>
             <img
-              src={colorImages[colorIndex] || variant.imageUrl}
+              src={
+  colorImages[colorIndex]
+    ? `${API_BASE_URL}${colorImages[colorIndex]}`
+    : `${API_BASE_URL}${variant.imageUrl}`
+}
               alt={`${
                 variant.name
               } - ${activeColor || "alapszín"} - ${colorIndex + 1}`}
@@ -516,7 +526,7 @@ export default function VariantDetails() {
           <h2 style={styles.sizeTitle}>Méretek</h2>
           <div style={styles.sizeImageBox}>
             <img
-              src={variant.sizeImageUrl}
+              src={`${API_BASE_URL}${variant.sizeImageUrl}`}
               alt="Méretek"
               style={styles.sizeImage}
             />
@@ -524,18 +534,29 @@ export default function VariantDetails() {
         </section>
       )}
         <section id="gallery" style={styles.section}>
-          <h2 style={styles.h2}>Galéria</h2>
-          <div style={styles.gallery}>
-            <img
-              alt={variant.name}
-              src={variant.imageUrl || "/images/car-placeholder.png"}
-              style={styles.galleryImg}
-            />
-            {exteriorImages.slice(0, 3).map((img, i) => (
-              <img key={i} src={img} alt="extra" style={styles.galleryImg} />
-            ))}
-          </div>
-        </section>
+  <h2 style={styles.h2}>Galéria</h2>
+  <div style={styles.gallery}>
+    <img
+      alt={variant.name}
+      src={
+        variant.imageUrl
+          ? `${API_BASE_URL}${variant.imageUrl}`
+          : "/images/car-placeholder.png"
+      }
+      style={styles.galleryImg}
+    />
+
+    {exteriorImages.slice(0, 3).map((img, i) => (
+      <img
+        key={i}
+        src={`${API_BASE_URL}${img}`}
+        alt={`extra-${i}`}
+        style={styles.galleryImg}
+      />
+    ))}
+  </div>
+</section>
+
       </div>
     </div>
   );
@@ -833,6 +854,7 @@ const styles = {
     marginTop: 6,
     textAlign: "center",
   },
+   // --- MÉRETEK STÍLUSOK ---
   sizeTitle: {
     textAlign: "center",
     fontSize: 32,

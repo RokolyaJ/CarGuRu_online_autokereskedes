@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { API_BASE_URL } from "../apiConfig";
 
 const CarCalculator = () => {
   const [formData, setFormData] = useState({
@@ -45,7 +46,7 @@ const [serverEstimatedPrice, setServerEstimatedPrice] = useState(null);
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/tradein/user/${userId}`,
+`${API_BASE_URL}/api/tradein/user/${userId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
           credentials: "include",
@@ -204,8 +205,8 @@ const handleSubmit = async (e) => {
 
   try {
     const url = editingId
-      ? `http://localhost:8080/api/tradein/update/${editingId}`
-      : "http://localhost:8080/api/tradein/create";
+      ? `${API_BASE_URL}/api/tradein/update/${editingId}`
+      : `${API_BASE_URL}/api/tradein/create`;
     const method = editingId ? "PUT" : "POST";
 
     const response = await fetch(url, {
@@ -281,7 +282,7 @@ const handleDelete = async (id) => {
   }
 
   try {
-    const res = await fetch(`http://localhost:8080/api/tradein/delete/${id}`, {
+    const res = await fetch(`${API_BASE_URL}/api/tradein/delete/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
       credentials: "include",
@@ -327,7 +328,7 @@ const handleDelete = async (id) => {
     description: car.description || "",
   });
   setPreviewUrls(
-    car.images?.map((img) => `http://localhost:8080${img.url}`) || []
+    car.images?.map((img) => `${API_BASE_URL}${img.url}`) || []
   );
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
@@ -343,7 +344,7 @@ const handleAccept = async (id) => {
       return;
     }
 
-    const res = await fetch(`http://localhost:8080/api/tradein/${id}/accept`, {
+    const res = await fetch(`${API_BASE_URL}/api/tradein/${id}/accept`, {
       method: "PUT",
       headers: { Authorization: `Bearer ${token}` },
       credentials: "include",
@@ -359,7 +360,7 @@ const handleAccept = async (id) => {
 
     await loadCars();
 
-    const profileRes = await fetch("http://localhost:8080/api/users/me", {
+    const profileRes = await fetch(`${API_BASE_URL}/api/users/me`, {
       headers: { Authorization: `Bearer ${token}` },
       credentials: "include",
     });
@@ -686,7 +687,7 @@ const handleDecline = async () => {
       <div key={car.id} className="saved-car-card">
         <div className="saved-car-image">
           <ImageRotator
-            images={car.images?.map((img) => `http://localhost:8080${img.url}`)}
+            images={car.images?.map((img) => `${API_BASE_URL}${img.url}`)}
             alt={`${car.make} ${car.model}`}
           />
         </div>

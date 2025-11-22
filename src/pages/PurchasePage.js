@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../apiConfig";
 
 export default function PurchasePage() {
   const location = useLocation();
@@ -9,7 +10,7 @@ export default function PurchasePage() {
 
 const [userId, setUserId] = useState(null);
   const [carId, setCarId] = useState(carData?.id || 1);
-  const baseUrl = "http://localhost:8080";
+const baseUrl = API_BASE_URL;
 
   const [order, setOrder] = useState(null);
   const [payment, setPayment] = useState("CARD");
@@ -183,7 +184,7 @@ useEffect(() => {
   async function fetchProfile() {
     if (!user?.token) return;
     try {
-      const res = await fetch("http://localhost:8080/api/users/me", {
+      const res = await fetch(`${API_BASE_URL}/api/users/me`, {
         headers: {
           Authorization: `Bearer ${user.token}`,
           Accept: "application/json",
@@ -235,7 +236,7 @@ async function handleSaveProfile() {
   };
 
   try {
-    const res = await fetch("http://localhost:8080/api/users/me/update", {
+    const res = await fetch(`${API_BASE_URL}/api/users/me/update`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -509,7 +510,7 @@ async function saveInsurance() {
 
  async function saveTradeIn() {
   if (!user || !user.token) {
-    alert("⚠️ Jelentkezz be a beszámítás használatához!");
+    alert("Jelentkezz be a beszámítás használatához!");
     return;
   }
 
@@ -1054,8 +1055,7 @@ async function saveInsurance() {
               {d.status === "PENDING" ? "⏳ Jóváhagyás alatt" : "Elfogadva"}
             </span>
           </div>
-          <a
-            href={`http://localhost:8080${d.url}`}
+          <a href={`${API_BASE_URL}${d.url}`}
             target="_blank"
             rel="noopener noreferrer"
             style={{

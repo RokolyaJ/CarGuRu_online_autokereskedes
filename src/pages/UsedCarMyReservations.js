@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../apiConfig";
 
 const UsedCarMyReservations = () => {
   const [cars, setCars] = useState([]);
@@ -9,12 +10,13 @@ const UsedCarMyReservations = () => {
       const token = localStorage.getItem("token");
 
       const res = await axios.get(
-        "http://localhost:8080/api/usedcars/my-reservations",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        }
-      );
+  `${API_BASE_URL}/api/usedcars/my-reservations`,
+  {
+    headers: { Authorization: `Bearer ${token}` },
+    withCredentials: true,
+  }
+);
+
 
       setCars(res.data);
     } catch (err) {
@@ -30,10 +32,10 @@ const UsedCarMyReservations = () => {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.delete(`http://localhost:8080/api/usedcars/${id}/reserve`, {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
-      });
+      await axios.delete(`${API_BASE_URL}/api/usedcars/${id}/reserve`, {
+  headers: { Authorization: `Bearer ${token}` },
+  withCredentials: true,
+});
 
       await loadData();
     } catch (err) {

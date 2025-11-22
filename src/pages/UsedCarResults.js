@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import Navbar from "../components/Navbar"
 import FavoriteButton from "../components/FavoriteButton";
+import { API_BASE_URL } from "../apiConfig";
 
 const styles = {
    page: {
@@ -641,7 +642,7 @@ export default function UsedCarResults() {
     console.log("SZŰRÉS INDULT", filters)
 
     try {
-      const response = await fetch("http://localhost:8080/api/usedcars/search", {
+      const response = await fetch(`${API_BASE_URL}/api/usedcars/search`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -2,10 +2,10 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/Navbar";
+import { API_BASE_URL } from "../apiConfig";
 
 const api = axios.create({
-  baseURL: "http://localhost:8080",
-  withCredentials: false,
+  baseURL: API_BASE_URL,
 });
 
 
@@ -149,14 +149,23 @@ export default function UsedMyCarDetails() {
                       src === activeImg ? "2px solid #ef530f" : "1px solid #eee",
                   }}
                 >
-                  <img src={src} alt={`kép ${i}`} style={sx.thumbImg} />
+                  <img
+  src={`${API_BASE_URL}${src}`}
+  alt={`kép ${i}`}
+  style={sx.thumbImg}
+/>
+
                 </button>
               )
             )}
           </div>
 
           <div style={sx.mainImgWrap}>
-            <img src={activeImg} alt="Aktív kép" style={sx.mainImg} />
+          <img
+  src={`${API_BASE_URL}${activeImg}`}
+  alt="Aktív kép"
+  style={sx.mainImg}
+/>
           </div>
         </section>
 

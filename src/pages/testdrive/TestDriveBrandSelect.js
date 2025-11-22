@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../apiConfig";
 
 function TestDriveBrandSelect() {
   const [brands, setBrands] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/brands")
+    fetch(`${API_BASE_URL}/api/brands`)
       .then(res => res.json())
       .then(data => setBrands(data))
       .catch(err => console.error("Hiba a márkák betöltésekor:", err));
@@ -47,7 +48,11 @@ function TestDriveBrandSelect() {
             onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1.0)"}
           >
             <img
-              src={b.logoUrl || "/images/default-logo.png"}
+              src={
+                b.logoUrl
+                  ? `${API_BASE_URL}${b.logoUrl}`
+                  : "/images/default-logo.png"
+              }
               alt={b.name}
               style={{ width: "100%", height: "100px", objectFit: "contain" }}
             />

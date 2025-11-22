@@ -2,9 +2,10 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ConfigContext } from "../../context/ConfigContext";
+import { API_BASE_URL } from "../../apiConfig";
 
 function Appearance() {
-  const { brand, model, variantId } = useParams(); 
+  const { brand, model, variantId } = useParams();
   const [appearances, setAppearances] = useState([]);
   const [selected, setSelected] = useState(null);
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ function Appearance() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8080/api/appearance/variant/${variantId}`) 
+      .get(`${API_BASE_URL}/api/appearance/variant/${variantId}`)
       .then((res) => {
         const uniqueColors = [];
         const uniqueAppearances = res.data.filter((item) => {
@@ -38,9 +39,9 @@ function Appearance() {
         wheels: selected.wheel,
         interior: selected.interior,
         price: selected.price,
-        imageUrl: selected.imageUrl,
+        imageUrl: `${API_BASE_URL}${selected.imageUrl}`,
       });
-      navigate(`/configurator/${brand}/${model}/${variantId}/equipment`); 
+      navigate(`/configurator/${brand}/${model}/${variantId}/equipment`);
     }
   };
 
@@ -52,7 +53,7 @@ function Appearance() {
         <div style={styles.imageWrapper}>
           {selected?.imageUrl ? (
             <img
-              src={selected.imageUrl}
+              src={`${API_BASE_URL}${selected.imageUrl}`}
               alt={selected.color}
               style={styles.image}
               onError={(e) => {

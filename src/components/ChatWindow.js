@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useChat } from "../context/ChatContext";
+import { API_BASE_URL } from "../apiConfig";
 
 export default function ChatWindow({ otherUserId, userName }) {
   const { user, token } = useAuth();
@@ -13,7 +14,7 @@ export default function ChatWindow({ otherUserId, userName }) {
 
   const scrollRef = useRef(null);
 
-  const apiBase = "http://localhost:8080";
+const apiBase = API_BASE_URL;
 
   const loadConversation = async () => {
     if (!token || !otherUserId) return;

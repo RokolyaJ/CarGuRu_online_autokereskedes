@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext"; 
+import { API_BASE_URL } from "../apiConfig";  
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8080/api/auth/login", {
+      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {   
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -52,20 +53,20 @@ export default function LoginPage() {
       console.log("Login response:", data);
 
       const tokenValue =
-  typeof data.token === "string"
-    ? data.token
-    : data.token?.token || data.accessToken || "";
+        typeof data.token === "string"
+          ? data.token
+          : data.token?.token || data.accessToken || "";
 
-if (!tokenValue) {
-  console.warn("Token hiányzik vagy nem megfelelő formátumú a válaszban:", data);
-} else {
-  console.log("Token mentve:", tokenValue);
-}
+      if (!tokenValue) {
+        console.warn("Token hiányzik vagy hibás:", data);
+      } else {
+        console.log("Token mentve:", tokenValue);
+      }
 
-localStorage.setItem("token", tokenValue);
-localStorage.setItem("email", data.email);
-localStorage.setItem("fullName", data.fullName);
-localStorage.setItem("role", data.role);
+      localStorage.setItem("token", tokenValue);
+      localStorage.setItem("email", data.email);
+      localStorage.setItem("fullName", data.fullName);
+      localStorage.setItem("role", data.role);
 
       if (data.userId) {
         localStorage.setItem("userId", String(data.userId));
@@ -74,7 +75,7 @@ localStorage.setItem("role", data.role);
         console.warn("Nincs userId az AuthResponse-ban!");
       }
 
-login(tokenValue, data.userId, data.email, data.fullName, data.role);
+      login(tokenValue, data.userId, data.email, data.fullName, data.role);
 
       if (data.role === "ADMIN") {
         navigate("/admin");

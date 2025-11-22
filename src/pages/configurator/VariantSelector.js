@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ConfigContext } from "../../context/ConfigContext";
+import { API_BASE_URL } from "../../apiConfig";
 
 function VariantSelector() {
   const { brand, model } = useParams();
@@ -146,10 +147,14 @@ function VariantSelector() {
                   onFocus={(e) => (e.currentTarget.style.outline = "none")}
                 >
                   <img
-                    src={variant.imageUrl || "/images/default-car.png"}
-                    alt={variant.name}
-                    style={styles.image}
-                  />
+  src={
+    variant.imageUrl
+      ? `${API_BASE_URL}${variant.imageUrl}`
+      : "/images/default-car.png"
+  }
+  alt={variant.name}
+  style={styles.image}
+/>
                   <h3 style={styles.variantName}>{variant.name}</h3>
 
                   {variant.price !== null && variant.price !== undefined && (

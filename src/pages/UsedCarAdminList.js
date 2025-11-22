@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../apiConfig";
 
 const UsedCarAdminList = () => {
   const [grouped, setGrouped] = useState([]);
@@ -12,7 +13,7 @@ const UsedCarAdminList = () => {
     const token = localStorage.getItem("token");
 
     axios
-      .get("http://localhost:8080/api/usedcars/admin/listings", {
+     .get(`${API_BASE_URL}/api/usedcars/admin/listings`, {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       })
@@ -30,7 +31,7 @@ const UsedCarAdminList = () => {
     if (!window.confirm("Biztosan törlöd ezt a hirdetést?")) return;
 
     try {
-      await axios.delete(`http://localhost:8080/api/usedcars/${carId}`, {
+      await axios.delete(`${API_BASE_URL}/api/usedcars/${carId}`, {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });

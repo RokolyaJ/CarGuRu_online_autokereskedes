@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
 
-const API_BASE = "http://localhost:8080";
+import { API_BASE_URL } from "../apiConfig"; 
 
 const fmt = (n) =>
   (Number(n) || 0).toLocaleString("hu-HU", { maximumFractionDigits: 0 });
@@ -25,7 +25,7 @@ export default function FavoritesPage() {
       }
 
       try {
-        const res = await fetch(`${API_BASE}/api/favorites`, {
+        const res = await fetch(`${API_BASE_URL}/api/favorites`, {
           headers: {
             Authorization: `Bearer ${user.token}`,
           },
@@ -36,7 +36,7 @@ export default function FavoritesPage() {
         const ids = await res.json();
 
         const carPromises = ids.map((id) =>
-          fetch(`${API_BASE}/api/usedcars/${id}`, {
+          fetch(`${API_BASE_URL}/api/usedcars/${id}`, {
             headers: {
               Authorization: `Bearer ${user.token}`,
             },

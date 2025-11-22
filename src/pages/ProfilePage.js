@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { API_BASE_URL } from "../apiConfig";
 
 const ImageCarousel = ({ images }) => {
   const [current, setCurrent] = useState(0);
@@ -30,7 +31,7 @@ const ImageCarousel = ({ images }) => {
   return (
     <div style={{ position: "relative", width: "180px", height: "130px" }}>
       <img
-        src={`http://localhost:8080${images[current].url}`}
+        src={`${API_BASE_URL}${images[current].url}`}
         alt="car"
         style={{
           width: "180px",
@@ -93,7 +94,7 @@ const handleTransfer = async () => {
   const [uploadMsg, setUploadMsg] = useState("");
   const [tradeIns, setTradeIns] = useState([]);
   const [tradeMsg, setTradeMsg] = useState("");
-  const baseUrl = "http://localhost:8080";
+const baseUrl = API_BASE_URL;
 const loadProfile = async () => {
   if (!user?.token) return;
   try {
@@ -231,7 +232,7 @@ const calculatePrice = (data) => {
 const handleDelete = async (id) => {
   if (!window.confirm("Biztosan törölni szeretnéd ezt az autót?")) return;
   try {
-    const res = await fetch(`http://localhost:8080/api/tradein/${id}`, {
+    const res = await fetch(`${API_BASE_URL}/api/tradein/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${user?.token}` },
     });
@@ -571,7 +572,7 @@ const handleEdit = (car) => {
                       {d.status === "PENDING" ? "⏳ Jóváhagyás alatt" : "Elfogadva"}
                     </span>
                   </div>
-                  <a href={`http://localhost:8080${d.url}`} target="_blank" rel="noopener noreferrer"
+                  <a href={`${API_BASE_URL}${d.url}`} target="_blank" rel="noopener noreferrer"
                     style={{ background: "#2563eb", color: "#fff", padding: "6px 12px", borderRadius: "6px", textDecoration: "none", fontWeight: 500 }}>
                     Megnyitás
                   </a>

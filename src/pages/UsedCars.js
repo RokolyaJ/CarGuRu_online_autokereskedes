@@ -3,9 +3,11 @@ import axios from "axios";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
 
+import { API_BASE_URL } from "../apiConfig";
+
 const api = axios.create({
-  baseURL: "http://localhost:8080", 
-  withCredentials: true            
+  baseURL: API_BASE_URL,
+  withCredentials: true
 });
 
 export default function UsedCars() {

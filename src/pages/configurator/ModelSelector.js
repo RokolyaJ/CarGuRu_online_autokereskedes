@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ConfigContext } from "../../context/ConfigContext";
+import { API_BASE_URL } from "../../apiConfig";
 
 function slugify(text) {
   return text
@@ -21,7 +22,7 @@ function ModelSelector() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8080/api/models/by-brand/${brand}`)
+      .get(`${API_BASE_URL}/api/models/by-brand/${brand}`)
       .then((res) => setModels(res.data))
       .catch((err) => console.error("Hiba a modellek lekérésekor:", err));
   }, [brand]);
@@ -56,9 +57,10 @@ function ModelSelector() {
           >
             {model.imageUrl && (
               <img
-                src={model.imageUrl}
+                src={`${API_BASE_URL}${model.imageUrl}`}
                 alt={model.name}
                 style={styles.image}
+                onError={(e) => (e.target.src = "/images/default-car.png")}
               />
             )}
             <div style={styles.modelName}>{model.name}</div>
