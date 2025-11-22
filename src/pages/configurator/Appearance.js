@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ConfigContext } from "../../context/ConfigContext";
-import { API_BASE_URL } from "../apiConfig";;
+import { API_BASE_URL } from "../../apiConfig";
 
 function Appearance() {
   const { brand, model, variantId } = useParams();

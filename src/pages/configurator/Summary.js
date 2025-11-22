@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { ConfigContext } from '../../context/ConfigContext';
 import { useNavigate } from 'react-router-dom';
-import { API_BASE_URL } from "../apiConfig";;
+import { API_BASE_URL } from "../../apiConfig";
 
 const Summary = () => {
   const navigate = useNavigate();

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-import { API_BASE_URL } from "../apiConfig";   // <<< FONTOS!
+import { API_BASE_URL } from "../../apiConfig";
 
 const styles = {
   page: {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { API_BASE_URL } from "../apiConfig";
+import { API_BASE_URL } from "../../apiConfig";
 
 function TestDriveModelList() {
   const { brandName } = useParams();
@@ -26,7 +26,6 @@ function TestDriveModelList() {
   };
 
   useEffect(() => {
-    // ---- VARIÁNSOK ----
     fetch(`${API_BASE_URL}/api/stock/full-variants/by-brand/${brandName}`)
       .then((res) => res.json())
       .then((data) => {
@@ -36,7 +35,6 @@ function TestDriveModelList() {
       })
       .catch((err) => console.error("Hiba az autók betöltésekor:", err));
 
-    // ---- KERESKEDÉSEK ----
     fetch(`${API_BASE_URL}/api/stock/stores/by-brand/${brandName}`)
       .then((res) => res.json())
       .then((stores) => {
@@ -82,7 +80,6 @@ function TestDriveModelList() {
 
       <div style={{ display: "flex", justifyContent: "center", gap: "40px", flexWrap: "wrap" }}>
         
-        {/* ---- BAL OLDALI SZŰRŐ ---- */}
         <div
           style={{
             width: "260px",
@@ -143,7 +140,6 @@ function TestDriveModelList() {
           />
         </div>
 
-        {/* ---- JOBB OLDAL LISTA ---- */}
         <div style={{ flex: 1, display: "flex", flexWrap: "wrap", gap: "25px", justifyContent: "center" }}>
           {filteredVariants.length > 0 ? (
             filteredVariants.map((v) => (

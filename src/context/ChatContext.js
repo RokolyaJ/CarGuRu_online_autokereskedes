@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "./AuthContext";
-import { API_BASE_URL } from "../apiConfig";
+import { API_BASE_URL } from "../../apiConfig";
 
 const ChatContext = createContext(null);
 
