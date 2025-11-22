@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function VehicleDetails() {
-  const { id } = useParams(); // <-- URL-ből jön az ID
+  const { id } = useParams(); 
   const navigate = useNavigate();
 
   const [vehicle, setVehicle] = useState(null);

@@ -1,7 +1,7 @@
 import { FiHeart } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
-import { API_BASE_URL } from "../../apiConfig";
+import { API_BASE_URL } from "../apiConfig";
 
 const API_BASE = API_BASE_URL;
 
