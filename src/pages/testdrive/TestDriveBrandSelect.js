@@ -47,13 +47,19 @@ function TestDriveBrandSelect() {
             onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"}
             onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1.0)"}
           >
-            <img
-              src={
-                b.logoUrl
-                  ? `${API_BASE_URL}${b.logoUrl}`
-                  : "/images/default-logo.png"
-              }
+           <img
+              src={`/images/logo/${b.name.toLowerCase()}_logo.png`}   
               alt={b.name}
+              onError={(e) => {
+                const base = `/images/logo/${b.name.toLowerCase()}_logo`;
+
+                if (!e.target.dataset.tryJpg) {
+                  e.target.dataset.tryJpg = "true";         
+                  e.target.src = base + ".jpg";
+                } else {
+                  e.target.src = "/images/logo/logo.png";      
+                }
+              }}
               style={{ width: "100%", height: "100px", objectFit: "contain" }}
             />
             <h3 style={{ marginTop: "15px", fontSize: "1.3rem", color: "#333" }}>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Select from "react-select";
+import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../../apiConfig";
 
 function TestDriveModelList() {
@@ -13,17 +14,17 @@ function TestDriveModelList() {
   const [dealers, setDealers] = useState([]);
   const [selectedDealer, setSelectedDealer] = useState("");
   const navigate = useNavigate();
+const getLocalImage = (brand, model) => {
+  if (!brand || !model) return "/images/default-car.png";
 
-  const getCarImage = (brand, model) => {
-    if (!brand || !model) return "/images/default-car.png";
+  let clean = model
+    .replace(/^([A-Z0-9]+)\s*[–-]\s*/i, "") 
+    .toLowerCase()
+    .replace(/[\s–-]+/g, "_") 
+    .replace(/[^a-z0-9_]/g, ""); 
 
-    const formattedModel = model
-      .toLowerCase()
-      .replace(/[\s–-]+/g, "_")
-      .replace(/[^a-z0-9_]/g, "");
-
-    return `/images/new_cars/${brand.toLowerCase()}/${formattedModel}.jpg`;
-  };
+  return `/images/new_cars/${brand.toLowerCase()}/${clean}.jpg`;
+};
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/stock/full-variants/by-brand/${brandName}`)
@@ -50,25 +51,21 @@ function TestDriveModelList() {
 
   useEffect(() => {
     let filtered = [...variants];
-
     if (selectedModel) {
       filtered = filtered.filter(
         (v) => v.model?.toLowerCase() === selectedModel.toLowerCase()
       );
     }
-
     if (selectedFuel) {
       filtered = filtered.filter(
         (v) => v.fuel?.toLowerCase() === selectedFuel.toLowerCase()
       );
     }
-
     if (selectedDealer) {
       filtered = filtered.filter(
         (v) => v.storeName?.toLowerCase() === selectedDealer.toLowerCase()
       );
     }
-
     setFilteredVariants(filtered);
   }, [selectedModel, selectedFuel, selectedDealer, variants]);
 
@@ -153,22 +150,22 @@ function TestDriveModelList() {
                   padding: "20px",
                 }}
               >
-                <img
-                  src={
-                    v.imageUrl
-                      ? `${API_BASE_URL}${v.imageUrl}`
-                      : "/images/default-car.png"
-                  }
-                  alt={v.model}
-                  onError={(e) => (e.target.src = "/images/default-car.png")}
-                  style={{
-                    width: "100%",
-                    height: "180px",
-                    objectFit: "cover",
-                    borderRadius: "10px",
-                    marginBottom: "10px",
-                  }}
-                />
+              <img
+                src={v.imageUrl || "/images/default-car.png"}
+                alt={v.model}
+                onError={(e) => (e.target.src = "/images/default-car.png")}
+                style={{
+                  width: "100%",
+                  height: "180px",
+                  objectFit: "cover",
+                  borderRadius: "10px",
+                  marginBottom: "10px",
+                }}
+              />
+
+
+
+
 
                 <h2>{v.model} {v.variant && `– ${v.variant}`}</h2>
                 <p><strong>Ár:</strong> {v.price?.toLocaleString()} Ft</p>
@@ -191,7 +188,7 @@ function TestDriveModelList() {
                   }}
                   onClick={() =>
                     navigate(`/test-drive/${brandName}/${v.id}/booking`, {
-                      state: { car: v },
+                      state: { car: v }
                     })
                   }
                 >

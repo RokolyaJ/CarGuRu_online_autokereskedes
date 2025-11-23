@@ -2,7 +2,6 @@ package com.autokereskedes.backend.model;
 
 import jakarta.persistence.*;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -32,36 +31,51 @@ public class Variant {
     @OneToMany(mappedBy = "variant", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<StockVehicle> stockVehicles = new HashSet<>();
 
+
+    // ========= EXTERIOR =========
     @Column(columnDefinition = "TEXT")
     private String exteriorDescription;
 
     @Column(name = "exterior_image_url", columnDefinition = "TEXT")
     private String exteriorImageUrl;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "exterior_images", columnDefinition = "TEXT")
     private String exteriorImages;
 
+
+    // ========= INTERIOR =========
     @Column(columnDefinition = "TEXT")
     private String interiorDescription;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "interior_image_url", columnDefinition = "TEXT")
     private String interiorImageUrl;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "interior_images", columnDefinition = "TEXT")
     private String interiorImages;
 
+
+    // ========= GALLERY =========
+    @Column(name = "gallery_images", columnDefinition = "TEXT")
+    private String galleryImages;
+
+
+    // ========= INNOVATION =========
     @Column(columnDefinition = "TEXT")
     private String innovationDescription;
 
     @Column(columnDefinition = "TEXT")
     private String innovationImageUrl;
 
+
+    // ========= SAFETY =========
     @Column(columnDefinition = "TEXT")
     private String safetyDescription;
 
     @Column(columnDefinition = "TEXT")
     private String safetyImageUrl;
 
+
+    // ========= TECH FEATURES =========
     @Column(columnDefinition = "TEXT")
     private String driverAssistanceDescription;
 
@@ -86,22 +100,33 @@ public class Variant {
     @Column(columnDefinition = "TEXT")
     private String parkingAssistanceImageUrl;
 
+
+    // ========= COLOR GALLERIES =========
     @Column(columnDefinition = "TEXT")
     private String colorGalleries;
 
+
+    // ========= SIZE IMAGE =========
     @Column(columnDefinition = "TEXT")
     private String sizeImageUrl;
 
+
+    // ========= TECHNOLOGY IMAGES + DESCRIPTIONS =========
     @Column(name = "technology_images", columnDefinition = "TEXT")
     private String technologyImages;
 
     @Column(name = "technology_descriptions", columnDefinition = "TEXT")
     private String technologyDescriptions;
 
-    private String transmission; 
-    private String color;       
-    private String plateNumber;  
-    private String decoration;  
+
+    // ========= OTHER FIELDS =========
+    private String transmission;
+    private String color;
+    private String plateNumber;
+    private String decoration;
+
+
+    // ========= GETTERS / SETTERS =========
 
     public Long getId() { return id; }
 
@@ -156,6 +181,9 @@ public class Variant {
     public String getInteriorImages() { return interiorImages; }
     public void setInteriorImages(String interiorImages) { this.interiorImages = interiorImages; }
 
+    public String getGalleryImages() { return galleryImages; }
+    public void setGalleryImages(String galleryImages) { this.galleryImages = galleryImages; }
+
     public String getInnovationDescription() { return innovationDescription; }
     public void setInnovationDescription(String innovationDescription) { this.innovationDescription = innovationDescription; }
 
@@ -203,16 +231,17 @@ public class Variant {
 
     public String getTechnologyDescriptions() { return technologyDescriptions; }
     public void setTechnologyDescriptions(String technologyDescriptions) { this.technologyDescriptions = technologyDescriptions; }
+
     public String getTransmission() { return transmission; }
-public void setTransmission(String transmission) { this.transmission = transmission; }
+    public void setTransmission(String transmission) { this.transmission = transmission; }
 
-public String getColor() { return color; }
-public void setColor(String color) { this.color = color; }
+    public String getColor() { return color; }
+    public void setColor(String color) { this.color = color; }
 
-public String getPlateNumber() { return plateNumber; }
-public void setPlateNumber(String plateNumber) { this.plateNumber = plateNumber; }
+    public String getPlateNumber() { return plateNumber; }
+    public void setPlateNumber(String plateNumber) { this.plateNumber = plateNumber; }
 
-public String getDecoration() { return decoration; }
-public void setDecoration(String decoration) { this.decoration = decoration; }
+    public String getDecoration() { return decoration; }
+    public void setDecoration(String decoration) { this.decoration = decoration; }
 
 }

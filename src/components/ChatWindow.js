@@ -39,7 +39,7 @@ const apiBase = API_BASE_URL;
 
   const interval = setInterval(() => {
     loadConversation();
-  }, 2000);
+  }, 8000);
 
   return () => clearInterval(interval);
 }, [otherUserId, token]);

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_BASE_URL } from "../apiConfig";
 
 export default function VariantDetails() {
-  const { variantId } = useParams();
+const { variantId } = useParams();
   const navigate = useNavigate();
-const API_BASE_URL = "http://localhost:8080";
 
   const [variant, setVariant] = useState(null);
   const [engines, setEngines] = useState([]);
@@ -25,65 +25,78 @@ const API_BASE_URL = "http://localhost:8080";
   const [activeTab, setActiveTab] = useState("exterior");
   const [activeSection, setActiveSection] = useState("exterior");
   const [showDots, setShowDots] = useState(false);
+const [galleryImages, setGalleryImages] = useState([]);
 
   useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      setLoading(true);
-      try {
-        const [vRes, eRes] = await Promise.all([
-          axios.get(`http://localhost:8080/api/variants/${variantId}`),
-          axios.get(`http://localhost:8080/api/engines/by-variant/${variantId}`),
-        ]);
+  let cancelled = false;
 
-        if (!cancelled) {
-          const v = vRes.data;
-          setVariant(v);
-          setExteriorImages(
-  typeof v.exteriorImages === "string"
-    ? JSON.parse(v.exteriorImages)
-    : Array.isArray(v.exteriorImages)
-    ? v.exteriorImages
-    : v.exteriorImageUrl
-    ? [v.exteriorImageUrl]
+  async function load() {
+    setLoading(true);
+
+    try {
+      const vRes = await axios.get(`${API_BASE_URL}/api/variants/${variantId}`, {
+        withCredentials: false,
+        headers: {}
+      });
+
+      if (!cancelled) {
+        const v = vRes.data;
+console.log("VARIANT RAW:", v);
+
+        setVariant(v);
+
+       setInteriorImages(
+  Array.isArray(v.interiorImages)
+    ? v.interiorImages
+    : Array.isArray(v.interior_images)
+    ? v.interior_images
     : []
 );
 
-          setInteriorImages(v.interiorImages || []);
 
-          const cg = v.colorGalleries || {};
-          setColorGalleries(cg);
-          const firstColor = Object.keys(cg)[0] || null;
-          setActiveColor(firstColor);
-          setColorImages(firstColor ? cg[firstColor] || [] : []);
-          setColorIndex(0);
+      setExteriorImages(
+  Array.isArray(v.exteriorImages)
+    ? v.exteriorImages
+    : []
+);
 
-          const uniqEngines = (eRes.data || []).filter(
-            (eng, i, arr) =>
-              i ===
-              arr.findIndex(
-                (x) =>
-                  x.name === eng.name &&
-                  x.fuelType === eng.fuelType &&
-                  x.powerKw === eng.powerKw &&
-                  x.powerHp === eng.powerHp
-              )
-          );
-          setEngines(uniqEngines);
-        }
-      } catch (err) {
-        console.error(err);
-        if (!cancelled)
-          setErrorMsg("Nem sikerült betölteni a variáns adatait.");
-      } finally {
-        if (!cancelled) setLoading(false);
+setGalleryImages(
+  Array.isArray(v.galleryImages)
+    ? v.galleryImages
+    : []
+);
+
+        const cg = v.colorGalleries || {};
+const mapped = {};
+for (const color in cg) {
+  mapped[color] = cg[color];
+}
+setColorGalleries(mapped);
+
+
+        const firstColor = Object.keys(cg)[0] || null;
+        setActiveColor(firstColor);
+setColorImages(firstColor ? mapped[firstColor] || [] : []);
+        setColorIndex(0);
       }
+    } catch (err) {
+      console.error(err);
+
+      if (!cancelled) {
+        setErrorMsg("Nem sikerült betölteni a variáns adatait.");
+      }
+    } finally {
+      if (!cancelled) setLoading(false);
     }
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, [variantId]);
+  }
+
+  load();
+
+  return () => {
+    cancelled = true;
+  };
+}, [variantId]);
+
   useEffect(() => {
     const handleScroll = () => {
       const backBtn = document.getElementById("back-btn");
@@ -213,11 +226,8 @@ const API_BASE_URL = "http://localhost:8080";
         <div style={styles.heroImgBox}>
           <img
             alt={variant.name}
-            src={
-  variant.imageUrl
-    ? `${API_BASE_URL}${variant.imageUrl}`
-    : "/images/car-placeholder.png"
-}
+           src={variant.imageUrl || "/images/car-placeholder.png"}
+
 
             style={styles.heroImg}
           />
@@ -296,10 +306,11 @@ const API_BASE_URL = "http://localhost:8080";
                       </button>
                       <img
                         key={currentImage}
-                        src={`${API_BASE_URL}${exteriorImages[currentImage]}`}
+                        src={exteriorImages[currentImage]}
                         alt={`${variant.name} külső ${currentImage + 1}`}
                         style={styles.carouselImage}
                       />
+
                       <button style={styles.arrowRight} onClick={nextImage}>
                         ›
                       </button>
@@ -330,14 +341,13 @@ const API_BASE_URL = "http://localhost:8080";
                       >
                         ‹
                       </button>
-                      <img
-                        key={currentInteriorImage}
-                        src={`${API_BASE_URL}${interiorImages[currentInteriorImage]}`}
-                        alt={`${variant.name} belső ${
-                          currentInteriorImage + 1
-                        }`}
-                        style={styles.carouselImage}
-                      />
+                     <img
+  key={currentInteriorImage}
+  src={interiorImages[currentInteriorImage]}
+  alt={`${variant.name} belső ${currentInteriorImage + 1}`}
+  style={styles.carouselImage}
+/>
+
                       <button
                         style={styles.arrowRight}
                         onClick={nextInteriorImage}
@@ -387,14 +397,15 @@ const API_BASE_URL = "http://localhost:8080";
           <div style={styles.techContent}>
             <img
   src={
-    activeTech === "driver"
-      ? `${API_BASE_URL}${variant.driverAssistanceImageUrl}`
-      : activeTech === "safe"
-      ? `${API_BASE_URL}${variant.safeAssistanceImageUrl}`
-      : activeTech === "matrix"
-      ? `${API_BASE_URL}${variant.matrixLightImageUrl}`
-      : `${API_BASE_URL}${variant.parkingAssistanceImageUrl}`
-  }
+  activeTech === "driver"
+    ? variant.driverAssistanceImageUrl
+    : activeTech === "safe"
+    ? variant.safeAssistanceImageUrl
+    : activeTech === "matrix"
+    ? variant.matrixLightImageUrl
+    : variant.parkingAssistanceImageUrl
+}
+
               alt="Technology feature"
               style={styles.techImage}
             />
@@ -425,11 +436,12 @@ const API_BASE_URL = "http://localhost:8080";
               ‹
             </button>
             <img
-              src={
+             src={
   colorImages[colorIndex]
-    ? `${API_BASE_URL}${colorImages[colorIndex]}`
-    : `${API_BASE_URL}${variant.imageUrl}`
+    ? colorImages[colorIndex]
+    : variant.imageUrl
 }
+
               alt={`${
                 variant.name
               } - ${activeColor || "alapszín"} - ${colorIndex + 1}`}
@@ -522,40 +534,32 @@ const API_BASE_URL = "http://localhost:8080";
   )}
 
       {variant.sizeImageUrl && (
-        <section id="size" style={styles.section}>
-          <h2 style={styles.sizeTitle}>Méretek</h2>
-          <div style={styles.sizeImageBox}>
-            <img
-              src={`${API_BASE_URL}${variant.sizeImageUrl}`}
-              alt="Méretek"
-              style={styles.sizeImage}
-            />
-          </div>
-        </section>
-      )}
-        <section id="gallery" style={styles.section}>
-  <h2 style={styles.h2}>Galéria</h2>
-  <div style={styles.gallery}>
-    <img
-      alt={variant.name}
-      src={
-        variant.imageUrl
-          ? `${API_BASE_URL}${variant.imageUrl}`
-          : "/images/car-placeholder.png"
-      }
-      style={styles.galleryImg}
-    />
-
-    {exteriorImages.slice(0, 3).map((img, i) => (
+  <section id="size" style={styles.section}>
+    <h2 style={styles.sizeTitle}>Méretek</h2>
+    <div style={styles.sizeImageBox}>
       <img
-        key={i}
-        src={`${API_BASE_URL}${img}`}
-        alt={`extra-${i}`}
-        style={styles.galleryImg}
+        src={variant.sizeImageUrl}   
+        alt="Méretek"
+        style={styles.sizeImage}
       />
-    ))}
+    </div>
+  </section>
+)}
+
+       <section id="gallery" style={styles.section}>
+  <h2 style={styles.h2}>Galéria</h2>
+
+  <div style={styles.gallery}>
+    {galleryImages.length > 0 ? (
+      galleryImages.map((img, i) => (
+        <img key={i} src={img} style={styles.galleryImg} alt="" />
+      ))
+    ) : (
+      <p>Nincsenek galéria képek feltöltve.</p>
+    )}
   </div>
 </section>
+
 
       </div>
     </div>

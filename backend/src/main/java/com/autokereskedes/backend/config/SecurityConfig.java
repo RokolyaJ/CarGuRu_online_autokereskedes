@@ -47,108 +47,82 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http
-            .cors(cors -> cors.configurationSource(request -> {
+        http.cors(cors -> cors.configurationSource(request -> {
             CorsConfiguration cfg = new CorsConfiguration();
             cfg.setAllowCredentials(true);
             cfg.setAllowedOriginPatterns(List.of(
-                "http://localhost:3000",
-                "https://carguru-online-autokereskedes.onrender.com",
-                "https://resilient-halva-e23069.netlify.app",
-                "https://*.netlify.app"
+                    "http://localhost:3000",
+                    "https://carguru-online-autokereskedes.onrender.com",
+                    "https://resilient-halva-e23069.netlify.app",
+                    "https://*.netlify.app"
             ));
             cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
             cfg.setAllowedHeaders(List.of("*"));
             cfg.setExposedHeaders(List.of("Authorization"));
             cfg.setMaxAge(3600L);
             return cfg;
-        }))
+        }));
 
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        http.csrf(csrf -> csrf.disable());
+        http.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-            .authorizeHttpRequests(auth -> auth
+        http.authorizeHttpRequests(auth -> auth
 
-                .requestMatchers(
-                        "/api/auth/**",
-                        "/api/public/**",
-                        "/api/test-email",
-                        "/api/offer/**",
-                        "/api/brands/**",
-                        "/api/cars/**",      
-                         "/api/cars", 
-                        "/api/models/**",
-                        "/api/variants/**",
-                        "/api/stock/**",
-                        "/api/test-drive/**",
-                        "/api/stock-vehicle/**",
-                        "/api/engines/**",
-                        "/api/catalog/**",
-                        "/api/images/**",
-                        "/uploads/**",
-                        "/images/**",
-                        "/static/**",
-                        "/resources/**",
-                        "/webjars/**",
-                        "/favicon.ico"
-                ).permitAll()
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/public/**").permitAll()
+                .requestMatchers("/api/test-email").permitAll()
+                .requestMatchers("/api/offer/**").permitAll()
+                .requestMatchers("/api/brands/**").permitAll()
+                .requestMatchers("/api/cars/**").permitAll()
+                .requestMatchers("/api/models/**").permitAll()
+                .requestMatchers("/api/variants/**").permitAll()
+                .requestMatchers("/api/engines/**").permitAll()
+                .requestMatchers("/api/catalog/**").permitAll()
+                .requestMatchers("/api/stock/**").permitAll()
+                .requestMatchers("/api/test-drive/**").permitAll()
+                .requestMatchers("/api/stock-vehicle/**").permitAll()
+                .requestMatchers("/api/images/**").permitAll()
+                .requestMatchers("/uploads/**").permitAll()
+                .requestMatchers("/images/**").permitAll()
+                .requestMatchers("/static/**").permitAll()
+                .requestMatchers("/resources/**").permitAll()
+                .requestMatchers("/webjars/**").permitAll()
+                .requestMatchers("/favicon.ico").permitAll()
 
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                .requestMatchers(HttpMethod.GET,
-                        "/api/usedcars/featured",
-                        "/api/usedcars/*"        
-                ).permitAll()
-
-                .requestMatchers(HttpMethod.POST,
-                        "/api/usedcars/search"
-                ).permitAll()
-
-                .requestMatchers(HttpMethod.POST,
-                        "/api/images/temp",
-                        "/api/images/temp/**",
-                        "/api/images/assign/**"
-                ).permitAll()
-
-                .requestMatchers(HttpMethod.POST, "/api/usedcars").hasAnyRole("USER", "ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/usedcars/finalize").hasAnyRole("USER", "ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/usedcars/**").hasAnyRole("USER", "ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/usedcars/**").hasAnyRole("USER", "ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/usedcars/mine").hasAnyRole("USER", "ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/usedcars/featured").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/usedcars/*").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/usedcars/search").permitAll()
 
                 .requestMatchers("/api/favorites/**").authenticated()
-
-                .requestMatchers(
-                        "/api/users/**",
-                        "/api/tradein/**",
-                        "/api/documents/**",
-                        "/api/orders/**",
-                        "/api/paymentinfo/**",
-                        "/api/leasing/**",
-                        "/api/insurance/**",
-                        "/api/delivery/**"
-                ).authenticated()
+                .requestMatchers("/api/users/**").authenticated()
+                .requestMatchers("/api/tradein/**").authenticated()
+                .requestMatchers("/api/documents/**").authenticated()
+                .requestMatchers("/api/orders/**").authenticated()
+                .requestMatchers("/api/paymentinfo/**").authenticated()
+                .requestMatchers("/api/leasing/**").authenticated()
+                .requestMatchers("/api/insurance/**").authenticated()
+                .requestMatchers("/api/delivery/**").authenticated()
 
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/usedcars/admin/**").hasRole("ADMIN")
 
                 .requestMatchers("/api/messages/**").authenticated()
 
-                .anyRequest().authenticated()
-            )
+                .anyRequest().permitAll()
+        );
 
-            .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
+        http.addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
 
-            .exceptionHandling(ex -> ex
+        http.exceptionHandling(ex -> ex
                 .authenticationEntryPoint((req, res, e) -> {
-                    System.out.println("Auth hiba: " + e.getMessage());
                     res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
                 })
                 .accessDeniedHandler((req, res, e) -> {
-                    System.out.println("Access denied: " + e.getMessage());
                     res.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
                 })
-            );
+        );
 
         return http.build();
     }
@@ -158,9 +132,18 @@ public class SecurityConfig implements WebMvcConfigurer {
         return cfg.getAuthenticationManager();
     }
 
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:uploads/");
-    }
+@Override
+public void addResourceHandlers(ResourceHandlerRegistry registry) {
+
+    registry.addResourceHandler("/uploads/**")
+            .addResourceLocations("file:uploads/");
+
+    registry.addResourceHandler("/images/**")
+            .addResourceLocations(
+                "file:./public/images/",
+                "classpath:/static/images/"
+            );
+}
+
+
 }

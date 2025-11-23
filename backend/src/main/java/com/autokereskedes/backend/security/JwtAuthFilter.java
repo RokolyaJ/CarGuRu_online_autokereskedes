@@ -45,14 +45,24 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (path.startsWith("/uploads/")
-                || path.startsWith("/images/")
-                || path.equals("/favicon.ico")) {
+if (path.contains("/api/variants/")
+        || path.contains("/api/engines/")
+        || path.contains("/api/models/")
+        || path.contains("/api/brands/")
+        || path.contains("/api/catalog/")
+        || path.contains("/api/stock/")
+        || path.contains("/api/stock-vehicle/")
+        || path.contains("/api/test-drive")
+        || path.contains("/uploads/")
+        || path.contains("/images/")
+        || path.endsWith("favicon.ico")) {
 
-            System.out.println("PUBLIC FILE → JWT SKIP");
-            chain.doFilter(request, response);
-            return;
-        }
+    System.out.println("PUBLIC → JWT SKIP for: " + path);
+    chain.doFilter(request, response);
+    return;
+}
+
+
 
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
 
@@ -95,9 +105,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             System.out.println("JWT AUTH OK: " + user.getEmail());
 
         } catch (Exception ex) {
-            System.out.println("JWT ERROR: " + ex.getMessage());
-            SecurityContextHolder.clearContext();
-        }
+    System.out.println("JWT ERROR: " + ex.getMessage());
+    SecurityContextHolder.clearContext();
+    chain.doFilter(request, response);  
+    return;
+}
+
 
         chain.doFilter(request, response);
     }

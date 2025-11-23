@@ -146,7 +146,7 @@ public class VariantController {
 
         map.put("interiorDescription", v.getInteriorDescription());
         map.put("interiorImageUrl", v.getInteriorImageUrl());
-        map.put("interiorImages", v.getInteriorImages());
+map.put("interiorImages", parseJsonList(v.getInteriorImages()));
 
         map.put("innovationDescription", v.getInnovationDescription());
         map.put("innovationImageUrl", v.getInnovationImageUrl());
@@ -162,6 +162,7 @@ public class VariantController {
         map.put("safeAssistanceImageUrl", v.getSafeAssistanceImageUrl());
         map.put("parkingAssistanceDescription", v.getParkingAssistanceDescription());
         map.put("parkingAssistanceImageUrl", v.getParkingAssistanceImageUrl());
+        map.put("galleryImages", parseJsonList(v.getGalleryImages()));
 
         Set<String> fuels = new LinkedHashSet<>();
         if (v.getEngines() != null) {
@@ -208,11 +209,19 @@ public class VariantController {
     }
 
     private List<String> parseJsonList(String json) {
-        if (json == null || json.isBlank()) return Collections.emptyList();
-        try {
-            return objectMapper.readValue(json, new TypeReference<List<String>>() {});
-        } catch (Exception e) {
-            return Collections.emptyList();
+    if (json == null || json.isBlank()) return Collections.emptyList();
+
+    try {
+        // Ha single quote van benne → JSON hibás → javítjuk
+        if (json.contains("'")) {
+            json = json.replace("'", "\"");
         }
+
+        return objectMapper.readValue(json, new TypeReference<List<String>>() {});
+    } catch (Exception e) {
+        e.printStackTrace();
+        return Collections.emptyList();
     }
+}
+
 }

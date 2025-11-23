@@ -93,17 +93,21 @@ const TestDriveBookingPage = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!selectedCar) {
-      alert("Nincs autó kiválasztva!");
-      return;
-    }
+  if (!selectedCar) {
+    alert("Nincs autó kiválasztva!");
+    return;
+  }
 
-    try {
-      await axios.post(`${API_BASE_URL}/api/test-drive`, {
+  const token = localStorage.getItem("token");  // <-- EZ KELL
+
+  try {
+    await axios.post(
+      `${API_BASE_URL}/api/test-drive`,
+      {
         vehicleId: selectedCar.id,
-        brand: selectedCar.make || selectedCar.brand || "Ismeretlen",
+        brand: selectedCar.brand || selectedCar.make || "Ismeretlen",
         model: selectedCar.model,
         variant: selectedCar.variant,
         fullName: form.fullName,
@@ -116,14 +120,22 @@ const TestDriveBookingPage = () => {
         transmission: selectedCar.transmission,
         storeName: selectedCar.storeName,
         city: selectedCar.city,
-      });
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,   // <-- EZ NÉLKÜL 401
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-      alert("Sikeres foglalás! Hamarosan emailben kap visszaigazolást.");
-    } catch (err) {
-      console.error(err);
-      alert("Hiba történt a foglalás során!");
-    }
-  };
+    alert("Sikeres foglalás!");
+  } catch (err) {
+    console.error(err);
+    alert("Hiba történt a foglalás során!");
+  }
+};
+
 
   return (
     <div style={styles.page}>
@@ -131,15 +143,12 @@ const TestDriveBookingPage = () => {
 
       <div style={styles.container}>
         <div style={styles.carDetails}>
-          <img
-            src={
-              selectedCar?.imageUrl
-                ? `${API_BASE_URL}${selectedCar.imageUrl}`
-                : "/images/default-car.png"
-            }
-            alt={selectedCar?.model}
-            style={styles.carImage}
-          />
+       <img
+  src={selectedCar?.imageUrl || "/images/default-car.png"}
+  alt={`${selectedCar?.brand} ${selectedCar?.model}`}
+  style={styles.carImage}
+/>
+
           <h2>{selectedCar?.brand} {selectedCar?.model}</h2>
           <p><strong>Változat:</strong> {selectedCar?.variant || "—"}</p>
           <p><strong>Ár:</strong> {selectedCar?.price?.toLocaleString() || "—"} Ft</p>
