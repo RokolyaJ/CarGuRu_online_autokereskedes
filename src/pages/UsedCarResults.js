@@ -524,6 +524,72 @@ const defaultFilters = {
   ac: false,
   regValidHu: false,
 }
+function CarResultCard({ car, onClick }) {
+  const [imgUrl, setImgUrl] = useState("/placeholder.png");
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/images/${car.id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.length > 0) {
+          setImgUrl(API_BASE_URL + data[0].image);
+        }
+      })
+      .catch(() => setImgUrl("/placeholder.png"));
+  }, [car.id]);
+
+  return (
+    <div style={styles.card} onClick={onClick}>
+      <div style={{ position: "relative" }}>
+        {car.reserved && (
+          <div
+            style={{
+              position: "absolute",
+              top: 8,
+              left: 8,
+              background: "red",
+              color: "white",
+              padding: "4px 8px",
+              borderRadius: "4px",
+              fontSize: "12px",
+              fontWeight: 700,
+              zIndex: 3,
+            }}
+          >
+            FOGLALT
+          </div>
+        )}
+
+        <img
+          src={imgUrl}
+          alt={`${car.brand} ${car.model}`}
+          style={styles.img}
+          onError={(e) => (e.currentTarget.src = "/placeholder.png")}
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            right: 8,
+            bottom: 8,
+            zIndex: 2,
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <FavoriteButton carId={car.id} size={22} />
+        </div>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        <h3 style={{ margin: 0 }}>{car.brand} {car.model}</h3>
+        <p style={{ margin: 0, color: "#667085" }}>
+          {car.year} • {fmt(car.mileage)} km • {car.fuel} • {car.body}
+        </p>
+        <strong style={styles.price}>{fmt(car.price)} Ft</strong>
+      </div>
+    </div>
+  );
+}
 
 export default function UsedCarResults() {
   const navigate = useNavigate();
@@ -712,74 +778,17 @@ export default function UsedCarResults() {
   )}
 
   {filtered.length > 0 && (
-    <div style={styles.grid}>
-      {pagedCars.map((car) => (
-        <div
-  key={car.id}
-  style={styles.card}
-  onClick={() => navigate(`/used-cars/${car.id}`)}
->
-  <div style={{ position: "relative" }}>
-  {car.reserved && (
-    <div
-      style={{
-        position: "absolute",
-        top: 8,
-        left: 8,
-        background: "red",
-        color: "white",
-        padding: "4px 8px",
-        borderRadius: "4px",
-        fontSize: "12px",
-        fontWeight: 700,
-        zIndex: 3,
-      }}
-    >
-      FOGLALT
-    </div>
-  )}
-  <img
-  src={
-    car.imageUrl
-      ? car.imageUrl
-      : "/placeholder.png"
-  }
-  alt={`${car.brand} ${car.model}`}
-  style={styles.img}
-  onError={(e) => (e.currentTarget.src = "/placeholder.png")}
-/>
-
-
-  <div
-    style={{
-      position: "absolute",
-      right: 8,
-      bottom: 8,
-      zIndex: 2,
-    }}
-    onClick={(e) => e.stopPropagation()}
-  >
-    <FavoriteButton carId={car.id} size={22} />
+  <div style={styles.grid}>
+    {pagedCars.map((car) => (
+      <CarResultCard
+        key={car.id}
+        car={car}
+        onClick={() => navigate(`/used-cars/${car.id}`)}
+      />
+    ))}
   </div>
+)}
 
-
-</div>
-
-
-  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-    <h3 style={{ margin: 0 }}>
-      {car.brand} {car.model}
-    </h3>
-    <p style={{ margin: 0, color: "#667085" }}>
-      {car.year} • {fmt(car.mileage)} km • {car.fuel} • {car.body}
-    </p>
-    <strong style={styles.price}>{fmt(car.price)} Ft</strong>
-  </div>
-</div>
-
-      ))}
-    </div>
-  )}
 
   {filtered.length > 0 && (
     <div style={styles.pagerWrap}>

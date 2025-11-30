@@ -327,7 +327,7 @@ if (images == null || images.isEmpty()) {
             c.getPrice(),
             c.getFuel(),
             c.getBodyType(),
-            safeFirstImage(c.getId()),
+            safeFirstImage(c.getId()), 
             reserved
     );
 }

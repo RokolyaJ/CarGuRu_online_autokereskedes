@@ -28,7 +28,7 @@ public class UsedCarImageController {
     @GetMapping("/{carId}")
 public List<Map<String, String>> getImagesByCarId(@PathVariable Long carId) {
     return imageService.getImagesByCarId(carId).stream()
-            .map(img -> Map.of("imageUrl", img.getImage()))
+           .map(img -> Map.of("image", img.getImage()))
             .toList();
 }
 

@@ -24,6 +24,28 @@ const UsedCarAdminList = () => {
   useEffect(() => {
     loadData();
   }, []);
+function CarImage({ carId }) {
+  const [imgUrl, setImgUrl] = useState("/placeholder.png");
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/images/${carId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.length > 0) {
+          setImgUrl(API_BASE_URL + data[0].image);
+        }
+      })
+      .catch(() => setImgUrl("/placeholder.png"));
+  }, [carId]);
+
+  return (
+    <img
+      src={imgUrl}
+      className="car-img"
+      onError={(e) => e.currentTarget.src = "/placeholder.png"}
+    />
+  );
+}
 
   const deleteCar = async (carId) => {
     const token = localStorage.getItem("token");
@@ -74,7 +96,8 @@ const UsedCarAdminList = () => {
               <div className="car-grid">
                 {entry.cars.map((car) => (
                   <div key={car.id} className="car-card">
-                    <img src={car.imageUrl} alt={car.brand} className="car-img" />
+                   <CarImage carId={car.id} />
+
 
                     <div className="car-info">
                       <h3 className="car-name">
