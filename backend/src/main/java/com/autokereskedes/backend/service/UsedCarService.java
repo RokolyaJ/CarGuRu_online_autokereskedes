@@ -67,24 +67,23 @@ public class UsedCarService {
             ? owner.getFirstName() + " " + owner.getLastName()
             : null;
     List<String> images = repo.imagesFor(id);
-    if (images == null || images.isEmpty()) {
-        images = List.of("http://localhost:8080/uploads/placeholder.png");
-    } else {
-        String base = "http://localhost:8080";
-        images = images.stream().map(path -> {
-            if (path == null || path.isBlank()) {
-                return base + "/uploads/placeholder.png";
-            }
-            if (!path.startsWith("http")) {
-                if (!path.startsWith("/")) path = "/" + path;
-                if (!path.contains("/uploads/")) {
-                    path = "/uploads/usedcars/" + id + path;
-                }
-                path = base + path;
-            }
-            return path;
-        }).toList();
-    }
+    String BASE = System.getenv("RENDER") != null
+        ? "https://carguru-online-autokereskedes.onrender.com"
+        : "http://localhost:8080";
+
+if (images == null || images.isEmpty()) {
+    images = List.of(BASE + "/uploads/placeholder.png");
+} else {
+    images = images.stream().map(path -> {
+        if (path == null || path.isBlank()) {
+            return BASE + "/uploads/placeholder.png";
+        }
+        if (!path.startsWith("/")) path = "/" + path;
+        return BASE + path;
+    }).toList();
+}
+
+
 
     UsedCarFeaturesDto featuresDto = featRepo.findByCar_Id(id)
             .map(this::mapFeatures)
@@ -190,22 +189,22 @@ public class UsedCarService {
         return d;
     }
     private String safeFirstImage(Long id) {
-        String url = repo.firstImageFor(id);
+    String url = repo.firstImageFor(id);
 
-        if (url == null || url.isBlank()) {
-            return "http://localhost:8080/uploads/placeholder.png";
-        }
+    String BASE = System.getenv("RENDER") != null
+            ? "https://carguru-online-autokereskedes.onrender.com"
+            : "http://localhost:8080";
 
-        if (!url.startsWith("http")) {
-            if (!url.startsWith("/")) url = "/" + url;
-            if (!url.contains("/uploads/")) {
-                url = "/uploads/usedcars/" + id + url;
-            }
-            url = "http://localhost:8080" + url;
-        }
-
-        return url;
+    if (url == null || url.isBlank()) {
+        return BASE + "/uploads/placeholder.png";
     }
+
+    if (!url.startsWith("/")) url = "/" + url;
+
+    return BASE + url;
+}
+
+
     public List<String> engines(String brand, String model) {
         return engineRepo.findEngineNames(brand, model);
     }

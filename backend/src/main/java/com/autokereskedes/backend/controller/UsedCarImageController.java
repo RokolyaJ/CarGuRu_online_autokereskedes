@@ -26,9 +26,12 @@ public class UsedCarImageController {
     }
 
     @GetMapping("/{carId}")
-    public List<UsedCarImage> getImagesByCarId(@PathVariable Long carId) {
-        return imageService.getImagesByCarId(carId);
-    }
+public List<Map<String, String>> getImagesByCarId(@PathVariable Long carId) {
+    return imageService.getImagesByCarId(carId).stream()
+            .map(img -> Map.of("imageUrl", img.getImage()))
+            .toList();
+}
+
 
     @PostMapping("/upload/{carId}")
     public ResponseEntity<String> uploadImages(

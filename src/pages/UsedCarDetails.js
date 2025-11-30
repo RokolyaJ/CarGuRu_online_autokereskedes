@@ -63,7 +63,8 @@ useEffect(() => {
     .then(({ data }) => {
       setImages(data);
       if (data.length > 0) {
-        setActiveImg(API_BASE_URL + data[0].image);
+        setActiveImg(data[0].image);
+
       }
     })
     .catch((err) => console.error("Hiba a képek betöltésekor:", err));
@@ -263,7 +264,8 @@ useEffect(() => {
   {images.map((img) => (
     <button
       key={img.id}
-      onClick={() => setActiveImg(API_BASE_URL + img.image)}
+      onClick={() => setActiveImg(img.image)}
+
       style={{
         ...sx.thumb,
         outline:
@@ -272,7 +274,8 @@ useEffect(() => {
             : "1px solid #eee",
       }}
     >
-      <img src={API_BASE_URL + img.image} style={sx.thumbImg} />
+     <img src={img.image} style={sx.thumbImg} />
+
     </button>
   ))}
 </div>

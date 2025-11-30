@@ -55,16 +55,23 @@ public class UsedCarImage {
     public void setTempId(String tempId) { this.tempId = tempId; }
 
     public String getUrl() {
+    String BASE = System.getenv("RENDER") != null
+            ? "https://carguru-online-autokereskedes.onrender.com"
+            : "http://localhost:8080";
+
+    if (image == null || image.isBlank()) {
+        return BASE + "/uploads/placeholder.png";
+    }
 
     if (image.startsWith("http")) {
         return image;
     }
 
-    if (image.contains("uploads/")) {
-        return "http://localhost:8080/" + image.replaceFirst("^/", "");
+    if (!image.startsWith("/")) {
+        image = "/" + image;
     }
 
-    return "http://localhost:8080/uploads/usedcars/" + image;
+    return BASE + image;
 }
 
 }
