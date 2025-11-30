@@ -333,7 +333,7 @@ async function payWithBalance() {
   if (res.ok) {
     const data = await res.json();
     if (data.paymentStatus === "PAID") {
-      setStatusMsg("✅ Teljes összeg kifizetve az egyenlegből!");
+      setStatusMsg(" Teljes összeg kifizetve az egyenlegből!");
     } else if (data.paymentStatus === "PARTIALLY_PAID") {
       setStatusMsg("Részben kifizetve az egyenlegből, a fennmaradó összeget kártyával kell fizetni!");
     }
@@ -546,7 +546,7 @@ async function saveInsurance() {
     const data = await res.json();
     const value = data.estValueHuf || 0;
     setTradeInValue(value);
-    setStatusMsg(`✅ Beszámítás becsült értéke: ${value.toLocaleString()} Ft`);
+    setStatusMsg(`Beszámítás becsült értéke: ${value.toLocaleString()} Ft`);
 
     if (useTradeIn) {
       setFinalAmount(Math.max(0, totalPrice - value));
@@ -563,7 +563,7 @@ async function saveInsurance() {
 
   async function finalize() {
   if (!deliveryData) {
-    alert("⚠️ Kérlek, előbb mentsd el a szállítási adatokat!");
+    alert("Kérlek, előbb mentsd el a szállítási adatokat!");
     return;
   }
 
@@ -596,22 +596,20 @@ async function saveInsurance() {
   await saveInsurance();
 
   navigate(`/order-summary/${orderId}`, {
-    state: {
-      order: newOrder,
-      insurance: {
-        provider: insuranceProvider,
-        type: insuranceType,
-        price: insurancePrice,
-      },
-      delivery: deliveryData,
-      total: totalPrice,
+  state: {
+    order: newOrder,
+    car: carData,   
+    insurance: {
+      provider: insuranceProvider,
+      type: insuranceType,
+      price: insurancePrice,
     },
-  });
+    delivery: deliveryData,
+    total: totalPrice,
+  },
+});
+
 }
-
-
-
-
 
   return (
     <div className="purchase-wrapper">
@@ -723,10 +721,6 @@ async function saveInsurance() {
   </div>
   
 )}
-
-
-
-
           <label className={`payment-option ${payment === "CASH" ? "active" : ""}`}>
             <input
               type="radio"
@@ -934,7 +928,7 @@ async function saveInsurance() {
   </button>
   {deliveryData && (
     <p style={{ color: "green", marginTop: "10px" }}>
-      ✅ Szállítási adatok elmentve:
+      Szállítási adatok elmentve:
       {deliveryData.type === "IN_STORE"
         ? " Személyes átvétel"
         : ` Házhoz szállítás (${deliveryData.city}, ${deliveryData.zip})`}
@@ -1001,7 +995,7 @@ async function saveInsurance() {
       )}
     </div>
   ) : (
-    <p>🔄 Adataid betöltése...</p>
+    <p>Adataid betöltése...</p>
   )}
 </section>
 
@@ -1052,7 +1046,7 @@ async function saveInsurance() {
                 fontWeight: 500,
               }}
             >
-              {d.status === "PENDING" ? "⏳ Jóváhagyás alatt" : "Elfogadva"}
+              {d.status === "PENDING" ? "Jóváhagyás alatt" : "Elfogadva"}
             </span>
           </div>
           <a href={`${API_BASE_URL}${d.url}`}
@@ -1230,6 +1224,19 @@ async function saveInsurance() {
     border-radius: 16px;
     box-shadow: 0 2px 20px rgba(0,0,0,0.1);
   }
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 30px;
+}
+.form-group.full {
+  grid-column: 1 / 3;
+}
+@media (max-width: 700px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
 
   .page-title {
     text-align: center;

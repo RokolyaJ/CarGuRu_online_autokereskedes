@@ -131,7 +131,7 @@ export default function UsedCarAdminEdit() {
       <div style={sx.page}>
 
         <button style={btn.ghost} onClick={() => navigate(-1)}>
-          ← Vissza
+          Vissza
         </button>
 
         <h1 style={sx.title}>{title} (Admin szerkesztés)</h1>

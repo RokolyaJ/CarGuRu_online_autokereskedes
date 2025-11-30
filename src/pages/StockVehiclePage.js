@@ -77,7 +77,8 @@ const response = await axios.get(`${API_BASE}/api/stock-vehicle/${vin}`);
           quantity: 1,
           titleSnapshot: `${vehicle.brand} ${vehicle.model}`,
           priceSnapshot: vehicle.priceHuf,
-          imageUrl: vehicle.imageFrontUrl || vehicle.imageInteriorUrl,
+          imageUrl: vehicle.imageFrontUrl || vehicle.imageInteriorUrl || null,
+
         },
         {
           headers: {
@@ -120,11 +121,13 @@ const response = await axios.get(`${API_BASE}/api/stock-vehicle/${vin}`);
           background: #fff;
         }
 
-        .main-section {
-          flex: 1;
-          padding: 60px 80px;
-          margin-top: 70px;
-        }
+       .main-section {
+  flex: 1;
+  padding: 110px 80px 60px 80px !important;
+}
+
+
+
 
         .vehicle-header h1 {
           font-size: 2.6rem;
@@ -160,10 +163,15 @@ const response = await axios.get(`${API_BASE}/api/stock-vehicle/${vin}`);
         .spec-label { color: #666; font-size: .92rem; margin-bottom: 2px; }
         .spec-value { font-weight: 600; font-size: 1rem; }
 
-        .sidebar {
-          width: 380px; background: #fff; border-left: 1px solid #e3e3e3;
-          padding: 40px 30px 200px 30px; margin-top: 110px;
-        }
+     .sidebar {
+  padding-top: 110px !important;
+  padding-left: 30px;
+  padding-right: 30px;
+  padding-bottom: 200px;
+}
+
+
+
 
         .sidebar h1 { font-size: 1.9rem; margin: 0 0 10px 0; line-height: 1.15; }
         .sidebar p.vin { color: #777; font-size: .95rem; margin: 0 0 18px 0; }

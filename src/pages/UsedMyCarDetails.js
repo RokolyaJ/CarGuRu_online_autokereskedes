@@ -2,41 +2,86 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/Navbar";
+import { TouchSensor } from "@dnd-kit/core";
+
 import { API_BASE_URL } from "../apiConfig";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+
+import { CSS } from "@dnd-kit/utilities";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
 });
-
 
 export default function UsedMyCarDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [car, setCar] = useState(null);
-  const [activeImg, setActiveImg] = useState("");
+  const [activeImg, setActiveImg] = useState(null);
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
+  const [images, setImages] = useState([]);
+
+  const buildUrl = (img) => {
+  if (!img) return "/placeholder.png";
+  if (img.url?.startsWith("http")) return img.url;
+  if (img.image?.startsWith("http")) return img.image;
+  const BASE = window.location.origin.includes("localhost")
+    ? "http://localhost:8080"
+    : "https://carguru-online-autokereskedes.onrender.com";
+
+  return `${BASE}${img.url || img.image}`;
+};
+
+
+
+  const saveOrder = async (newOrder) => {
+    try {
+      const ids = newOrder.map((img) => img.id);
+      await api.put(`/api/images/reorder/${id}`, { images: ids });
+    } catch (err) {
+      console.error("Hiba sorrend mentése közben", err);
+    }
+  };
 
   useEffect(() => {
-    let alive = true;
     api
       .get(`/api/usedcars/${id}`)
+      .then(({ data }) => setCar(data))
+      .catch(() => setErr("Hiba történt."));
+    api
+      .get(`/api/images/${id}`)
       .then(({ data }) => {
-        if (!alive) return;
-        setCar(data);
-        const first = (data.images && data.images[0]) || "/placeholder.png";
-        setActiveImg(first);
+        setImages(data);
+        if (data.length > 0) setActiveImg(data[0]);
+        setLoading(false);
       })
-      .catch((e) => setErr(e?.response?.data?.message || "Hiba történt."))
-      .finally(() => alive && setLoading(false));
-
-    return () => {
-      alive = false;
-    };
+      .catch(() => {
+        setErr("Hiba történt képek betöltésénél.");
+        setLoading(false);
+      });
   }, [id]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } })
+  );
 
   const title = useMemo(() => {
     if (!car) return "";
@@ -54,11 +99,12 @@ export default function UsedMyCarDetails() {
 
   const handleUploadImages = async () => {
     if (!files.length) return alert("Nincs kiválasztott fájl!");
+
     const formData = new FormData();
     files.forEach((f) => formData.append("files", f));
 
     try {
-      const res = await api.post(`/api/images/upload/${id}`, formData, {
+      await api.post(`/api/images/upload/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       alert("Képek feltöltve!");
@@ -69,37 +115,33 @@ export default function UsedMyCarDetails() {
     }
   };
 
- const handleSave = async () => {
-  setSaving(true);
+  const handleSave = async () => {
+    setSaving(true);
+    const token = localStorage.getItem("token");
 
-  const token = localStorage.getItem("token");
-  if (!token) {
-    alert("Nem vagy bejelentkezve!");
-    setSaving(false);
-    return;
-  }
+    if (!token) {
+      alert("Nem vagy bejelentkezve!");
+      setSaving(false);
+      return;
+    }
 
-  try {
-    await api.put(`/api/usedcars/${id}`, car, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
-      }
-    });
+    try {
+      await api.put(`/api/usedcars/${id}`, car, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-    alert("Autó adatai frissítve!");
-    navigate("/mycars");
-
-  } catch (e) {
-    console.error(e);
-    alert("Hiba mentés közben!");
-  } finally {
-    setSaving(false);
-  }
-};
-
-
-  if (loading) {
+      alert("Autó adatai frissítve!");
+      navigate("/mycars");
+    } catch (e) {
+      alert("Hiba mentés közben!");
+    } finally {
+      setSaving(false);
+    }
+  };
+  if (loading || !car)
     return (
       <div>
         <Navbar />
@@ -108,9 +150,8 @@ export default function UsedMyCarDetails() {
         </div>
       </div>
     );
-  }
 
-  if (err) {
+  if (err)
     return (
       <div>
         <Navbar />
@@ -119,53 +160,64 @@ export default function UsedMyCarDetails() {
         </div>
       </div>
     );
-  }
-
-  if (!car) return null;
-
-  const fmtInt = (n) =>
-    typeof n === "number" ? n.toLocaleString("hu-HU") : n || "-";
 
   return (
     <div>
       <Navbar />
+
       <div style={sx.page}>
         <button style={btn.ghost} onClick={() => navigate(-1)}>
           ← Vissza
         </button>
 
-        <h1 style={sx.title}>{title || "Saját autó részletei"}</h1>
+        <h1 style={sx.title}>{title}</h1>
 
         <section style={sx.galleryWrap}>
-          <div style={sx.thumbs}>
-            {(car.images?.length ? car.images : ["/placeholder.png"]).map(
-              (src, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveImg(src)}
-                  style={{
-                    ...sx.thumb,
-                    outline:
-                      src === activeImg ? "2px solid #ef530f" : "1px solid #eee",
-                  }}
-                >
-                  <img
-  src={`${API_BASE_URL}${src}`}
-  alt={`kép ${i}`}
-  style={sx.thumbImg}
-/>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={({ active, over }) => {
+              if (!over) return;
 
-                </button>
-              )
-            )}
-          </div>
+              setImages((prev) => {
+                const oldIndex = prev.findIndex((i) => i.id === active.id);
+                const newIndex = prev.findIndex((i) => i.id === over.id);
+
+                const newOrder = arrayMove(prev, oldIndex, newIndex);
+                saveOrder(newOrder);
+                return newOrder;
+              });
+            }}
+          >
+            <SortableContext
+              items={images.map((img) => img.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div
+                style={{
+                  maxHeight: "600px",
+                  overflowY: "auto",
+                  paddingRight: 6,
+                  touchAction: "none",
+                }}
+              >
+                <div style={sx.thumbs}>
+                  {images.map((img) => (
+                    <SortableThumb
+                      key={img.id}
+                      img={img}
+                      activeImg={activeImg}
+                      setActiveImg={setActiveImg}
+                      buildUrl={buildUrl}
+                    />
+                  ))}
+                </div>
+              </div>
+            </SortableContext>
+          </DndContext>
 
           <div style={sx.mainImgWrap}>
-          <img
-  src={`${API_BASE_URL}${activeImg}`}
-  alt="Aktív kép"
-  style={sx.mainImg}
-/>
+            <img src={buildUrl(activeImg)} alt="Aktív kép" style={sx.mainImg} />
           </div>
         </section>
 
@@ -180,26 +232,36 @@ export default function UsedMyCarDetails() {
           <h2 style={sx.blockTitle}>Alapadatok szerkesztése</h2>
 
           <div style={form.grid}>
-            <Input label="Márka" name="brand" value={car.brand} onChange={handleChange} />
-            <Input label="Modell" name="model" value={car.model} onChange={handleChange} />
-            <Input label="Évjárat" name="year" value={car.year} onChange={handleChange} />
-            <Input label="Ár (Ft)" name="price" value={car.price} onChange={handleChange} />
-            <Input label="Km óra" name="mileage" value={car.mileage} onChange={handleChange} />
-            <Input label="Üzemanyag" name="fuel" value={car.fuel} onChange={handleChange} />
-            <Input label="Hengerűrtartalom" name="engineSize" value={car.engineSize} onChange={handleChange} />
-            <Input label="Váltó" name="transmission" value={car.transmission} onChange={handleChange} />
-            <Input label="Kivitel" name="bodyType" value={car.bodyType} onChange={handleChange} />
-            <Input label="Állapot" name="condition" value={car.condition} onChange={handleChange} />
-            <Input label="Ajtók száma" name="doors" value={car.doors} onChange={handleChange} />
-            <Input label="Ülések száma" name="seats" value={car.seats} onChange={handleChange} />
-            <Input label="Csomagtartó (l)" name="trunkCapacity" value={car.trunkCapacity} onChange={handleChange} />
-            <Input label="Hajtás" name="drivetrain" value={car.drivetrain} onChange={handleChange} />
-            <Input label="Motor elrendezés" name="engineLayout" value={car.engineLayout} onChange={handleChange} />
-            <Input label="Klíma típusa" name="klimaType" value={car.klimaType} onChange={handleChange} />
-            <Input label="Okmányok" name="docs" value={car.docs} onChange={handleChange} />
-            <Input label="Gumi méret" name="tireSize" value={car.tireSize} onChange={handleChange} />
-            <Input label="Helyszín" name="location" value={car.location} onChange={handleChange} />
-            <Input label="Kereskedő" name="dealer" value={car.dealer} onChange={handleChange} />
+            {[
+              "brand",
+              "model",
+              "year",
+              "price",
+              "mileage",
+              "fuel",
+              "engineSize",
+              "transmission",
+              "bodyType",
+              "condition",
+              "doors",
+              "seats",
+              "trunkCapacity",
+              "drivetrain",
+              "engineLayout",
+              "klimaType",
+              "docs",
+              "tireSize",
+              "location",
+              "dealer",
+            ].map((field) => (
+              <Input
+                key={field}
+                label={field}
+                name={field}
+                value={car[field]}
+                onChange={handleChange}
+              />
+            ))}
           </div>
 
           <div style={{ marginTop: 20 }}>
@@ -225,12 +287,39 @@ function Input({ label, name, value, onChange }) {
   return (
     <div style={form.field}>
       <label style={form.label}>{label}</label>
-      <input
-        style={form.input}
-        name={name}
-        value={value ?? ""}
-        onChange={onChange}
-      />
+      <input style={form.input} name={name} value={value ?? ""} onChange={onChange} />
+    </div>
+  );
+}
+function SortableThumb({ img, activeImg, setActiveImg, buildUrl }) {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: img.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    outline: img.id === activeImg?.id ? "2px solid #ef530f" : "1px solid #eee",
+    width: "100%",
+    height: 100,
+    borderRadius: 10,
+    overflow: "hidden",
+    cursor: "grab",
+    background: "#fff",
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      onClick={() => setActiveImg(img)}
+      style={style}
+    >
+      <img
+  src={buildUrl(img)}
+  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+/>
+
     </div>
   );
 }
@@ -248,16 +337,10 @@ const sx = {
     gap: 16,
     marginTop: 20,
   },
-  thumbs: { display: "grid", gap: 10 },
-  thumb: {
-    width: "100%",
-    height: 100,
-    borderRadius: 10,
-    overflow: "hidden",
-    padding: 0,
-    cursor: "pointer",
+  thumbs: {
+    display: "grid",
+    gap: 10,
   },
-  thumbImg: { width: "100%", height: "100%", objectFit: "cover" },
   mainImgWrap: {
     width: "100%",
     aspectRatio: "16/9",

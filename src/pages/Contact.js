@@ -1,87 +1,106 @@
 import React from "react";
+import { FiPhone, FiMail, FiMapPin, FiClock } from "react-icons/fi";
 
-function Contact() {
+export default function Contact() {
   return (
     <div style={styles.container}>
       <h1 style={styles.title}>Kapcsolat</h1>
-      <p style={styles.subtitle}>Vedd fel velünk a kapcsolatot!</p>
+      <p style={styles.subtitle}>Vedd fel velünk a kapcsolatot bármikor!</p>
 
-      <div style={styles.card}>
-        <h2>Elérhetőségeink</h2>
-        <p><strong>Email:</strong> info@carguru.hu</p>
-        <p><strong>Telefon:</strong> +36 30 123 4567</p>
-        <p><strong>Cím:</strong> Budapest, 10. kerület, Autó utca 12.</p>
-        <p><strong>Ügyfélszolgálat:</strong> H–P: 9:00 – 17:00</p>
+      <div style={styles.cardWrapper}>
+
+        <div style={styles.card}>
+          <FiPhone size={40} style={styles.icon} />
+          <h2 style={styles.cardTitle}>Telefon</h2>
+          <p style={styles.cardText}>+36 30 123 4567</p>
+        </div>
+
+        <div style={styles.card}>
+          <FiMail size={40} style={styles.icon} />
+          <h2 style={styles.cardTitle}>Email</h2>
+          <p style={styles.cardText}>carguruinformation@gmail.com</p>
+        </div>
+
+        <div style={styles.card}>
+          <FiMapPin size={40} style={styles.icon} />
+          <h2 style={styles.cardTitle}>Cím</h2>
+          <p style={styles.cardText}>Szeged, Francia utca 18.</p>
+        </div>
+
+        <div style={styles.card}>
+          <FiClock size={40} style={styles.icon} />
+          <h2 style={styles.cardTitle}>Nyitvatartás</h2>
+          <p style={styles.cardText}>H–P: 08:00 – 18:00</p>
+        </div>
+
       </div>
 
-      <form style={styles.form}>
-        <h2>Írj nekünk üzenetet</h2>
+      <div style={styles.mapContainer}>
+  <iframe
+    title="map"
+    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2758.36406694565!2d20.13645565064414!3d46.26286867797466!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x474487e16560adb5%3A0x7db928adf48efbe7!2sSzeged%2C%20Francia%20u.%2018%2C%206724!5e0!3m2!1shu!2hu!4v1764024934812!5m2!1shu!2hu"
+    width="100%"
+    height="100%"
+    style={{ border: 0, borderRadius: "14px" }}
+    allowFullScreen=""
+    loading="lazy"
+    referrerPolicy="no-referrer-when-downgrade"
+  ></iframe>
+</div>
 
-        <input type="text" placeholder="Név" style={styles.input} />
-        <input type="email" placeholder="Email" style={styles.input} />
-        <textarea placeholder="Üzenet" rows="5" style={styles.textarea} />
-
-        <button type="submit" style={styles.button}>Küldés</button>
-      </form>
     </div>
   );
 }
 
 const styles = {
   container: {
-    maxWidth: "900px",
-    margin: "50px auto",
-    padding: "20px",
-    fontFamily: "Arial",
+    paddingTop: "120px",
+    paddingBottom: "80px",
+    maxWidth: "1200px",
+    margin: "0 auto"
   },
   title: {
+    fontSize: "3rem",
+    fontWeight: "bold",
     textAlign: "center",
-    fontSize: "32px",
-    fontWeight: "700",
+    marginBottom: "10px"
   },
   subtitle: {
     textAlign: "center",
-    marginBottom: "30px",
+    fontSize: "1.2rem",
     color: "#555",
+    marginBottom: "40px"
+  },
+  cardWrapper: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+    gap: "30px",
+    marginBottom: "60px"
   },
   card: {
     background: "#fff",
-    padding: "20px",
-    borderRadius: "10px",
-    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-    marginBottom: "40px",
+    padding: "30px",
+    borderRadius: "14px",
+    textAlign: "center",
+    boxShadow: "0 6px 16px rgba(0,0,0,0.15)",
+    transition: ".3s"
   },
-  form: {
-    background: "#fff",
-    padding: "25px",
-    borderRadius: "10px",
-    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-    display: "flex",
-    flexDirection: "column",
-    gap: "15px",
+  icon: {
+    marginBottom: "14px",
+    color: "#1e90ff"
   },
-  input: {
-    padding: "12px",
-    fontSize: "16px",
-    borderRadius: "8px",
-    border: "1px solid #ccc",
+  cardTitle: {
+    fontSize: "1.6rem",
+    marginBottom: "10px"
   },
-  textarea: {
-    padding: "12px",
-    fontSize: "16px",
-    borderRadius: "8px",
-    border: "1px solid #ccc",
-    resize: "vertical",
+  cardText: {
+    fontSize: "1.1rem",
+    color: "#444"
   },
-  button: {
-    padding: "12px",
-    backgroundColor: "#007bff",
-    color: "#fff",
-    fontSize: "16px",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-  },
+  mapContainer: {
+    width: "100%",
+    height: "400px",
+    borderRadius: "14px",
+    overflow: "hidden"
+  }
 };
-
-export default Contact;

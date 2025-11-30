@@ -342,11 +342,11 @@ setColorImages(firstColor ? mapped[firstColor] || [] : []);
                         ‹
                       </button>
                      <img
-  key={currentInteriorImage}
-  src={interiorImages[currentInteriorImage]}
-  alt={`${variant.name} belső ${currentInteriorImage + 1}`}
-  style={styles.carouselImage}
-/>
+                        key={currentInteriorImage}
+                        src={interiorImages[currentInteriorImage]}
+                        alt={`${variant.name} belső ${currentInteriorImage + 1}`}
+                        style={styles.carouselImage}
+                      />
 
                       <button
                         style={styles.arrowRight}
@@ -396,15 +396,15 @@ setColorImages(firstColor ? mapped[firstColor] || [] : []);
 
           <div style={styles.techContent}>
             <img
-  src={
-  activeTech === "driver"
-    ? variant.driverAssistanceImageUrl
-    : activeTech === "safe"
-    ? variant.safeAssistanceImageUrl
-    : activeTech === "matrix"
-    ? variant.matrixLightImageUrl
-    : variant.parkingAssistanceImageUrl
-}
+              src={
+              activeTech === "driver"
+                ? variant.driverAssistanceImageUrl
+                : activeTech === "safe"
+                ? variant.safeAssistanceImageUrl
+                : activeTech === "matrix"
+                ? variant.matrixLightImageUrl
+                : variant.parkingAssistanceImageUrl
+            }
 
               alt="Technology feature"
               style={styles.techImage}
@@ -437,10 +437,10 @@ setColorImages(firstColor ? mapped[firstColor] || [] : []);
             </button>
             <img
              src={
-  colorImages[colorIndex]
-    ? colorImages[colorIndex]
-    : variant.imageUrl
-}
+                colorImages[colorIndex]
+                  ? colorImages[colorIndex]
+                  : variant.imageUrl
+              }
 
               alt={`${
                 variant.name
@@ -858,7 +858,6 @@ const styles = {
     marginTop: 6,
     textAlign: "center",
   },
-   // --- MÉRETEK STÍLUSOK ---
   sizeTitle: {
     textAlign: "center",
     fontSize: 32,

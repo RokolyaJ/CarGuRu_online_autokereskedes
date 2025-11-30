@@ -15,31 +15,61 @@ export const AuthProvider = ({ children }) => {
         if (parsed?.token) {
           setUser(parsed);
           setToken(parsed.token);
-          console.log("AuthContext: Betöltve localStorage-ből:", parsed);
         }
       }
     } catch (err) {
-      console.error("Hiba a localStorage olvasásakor:", err);
+      console.error("LocalStorage error:", err);
       localStorage.removeItem("user");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const login = (token, id, email, fullName, role) => {
-  const loggedInUser = { id, token, email, fullName, role };
-  localStorage.setItem("user", JSON.stringify(loggedInUser));
-  setUser(loggedInUser);
-  setToken(token);
-  console.log("User bejelentkezett:", loggedInUser);
-};
+  const refreshUser = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/users/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
+      if (!res.ok) return;
+
+      const updatedUser = await res.json();
+
+      const newUser = {
+        ...user,
+        fullName: updatedUser.fullName,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        profileImage: updatedUser.profileImage || updatedUser.url || null,
+
+      };
+
+      setUser(newUser);
+      localStorage.setItem("user", JSON.stringify(newUser));
+
+      console.log("User refreshed:", newUser);
+
+    } catch (err) {
+      console.error("refreshUser error:", err);
+    }
+  };
+
+  const login = (token, id, email, fullName, role, profileImage) => {
+    const loggedInUser = { id, token, email, fullName, role, profileImage };
+
+    localStorage.setItem("user", JSON.stringify(loggedInUser));
+    setUser(loggedInUser);
+    setToken(token);
+
+    console.log("User logged in:", loggedInUser);
+  };
 
   const logout = () => {
     localStorage.removeItem("user");
     setUser(null);
     setToken(null);
-    console.log("User kijelentkezett");
   };
 
   const isAuthenticated = !!token && !!user;
@@ -53,6 +83,8 @@ export const AuthProvider = ({ children }) => {
         logout,
         isAuthenticated,
         loading,
+        refreshUser,  
+        setUser
       }}
     >
       {children}
@@ -60,10 +92,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth() csak AuthProvider belsejében használható!");
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);

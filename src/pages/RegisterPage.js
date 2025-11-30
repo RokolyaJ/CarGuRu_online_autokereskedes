@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../apiConfig";
+import { useTheme } from "../context/ThemeContext";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const { darkMode } = useTheme();
+
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -14,6 +17,7 @@ export default function RegisterPage() {
     country: "Magyarország",
     terms: false,
   });
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -25,8 +29,7 @@ export default function RegisterPage() {
   const validate = () => {
     if (!form.firstName.trim()) return "Az utónév kötelező.";
     if (!form.lastName.trim()) return "A vezetéknév kötelező.";
-    if (!form.email || !/^\S+@\S+\.\S+$/.test(form.email))
-      return "Érvényes e-mail cím szükséges.";
+    if (!/^\S+@\S+\.\S+$/.test(form.email)) return "Érvényes e-mail cím szükséges.";
     if (form.password.length < 8)
       return "A jelszónak legalább 8 karakter hosszúnak kell lennie.";
     if (form.password !== form.confirmPassword)
@@ -39,10 +42,8 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
     const v = validate();
-    if (v) {
-      setError(v);
-      return;
-    }
+    if (v) return setError(v);
+
     setLoading(true);
     try {
       const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
@@ -57,10 +58,9 @@ export default function RegisterPage() {
           country: form.country,
         }),
       });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text);
-      }
+
+      if (!res.ok) throw new Error(await res.text());
+
       navigate("/login", {
         state: { success: "Sikeres regisztráció, jelentkezz be!" },
       });
@@ -71,177 +71,199 @@ export default function RegisterPage() {
     }
   };
 
-  const pageStyle = {
-    display: "flex",
-    justifyContent: "center",
-    padding: "120px 16px 60px",
-    background: "inherit",
-    color: "inherit",
+  const colors = {
+    bg: darkMode ? "#121212" : "#f5f6f7",
+    card: darkMode ? "#1e1e1e" : "#fff",
+    text: darkMode ? "#e3e3e3" : "#111",
+    inputBg: darkMode ? "#2a2a2a" : "#fff",
+    inputBorder: darkMode ? "#3d3d3d" : "#cfd4dc",
+    primary: "#0063E5",
   };
 
-  const cardStyle = {
-    width: "100%",
-    maxWidth: "720px",
-    background: "white",
-    color: "#111",
-    borderRadius: "12px",
-    boxShadow: "0 10px 30px rgba(0,0,0,.12)",
-    padding: "24px 24px 32px",
-  };
+ const wrapper = {
+  minHeight: "calc(100vh - 60px)", 
+  background: colors.bg,
+  color: colors.text,
+  padding: "20px 12px",   
+  marginTop: "60px",      
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "flex-start",
+};
 
-  const fieldStyle = {
-    display: "flex",
-    flexDirection: "column",
-    gap: "6px",
-    marginBottom: "14px",
-  };
+const card = {
+  width: "100%",
+  maxWidth: "520px",      
+  background: colors.card,
+  color: colors.text,
+  padding: "18px 18px 20px", 
+  borderRadius: "14px",      
+  boxShadow: "0 5px 20px rgba(0,0,0,0.18)", 
+};
 
-  const inputStyle = {
-    padding: "12px 14px",
-    border: "1px solid #cfd4dc",
-    borderRadius: "8px",
-    outline: "none",
-    fontSize: "15px",
-  };
+const title = {
+  fontSize: "22px",       
+  fontWeight: 700,
+  marginBottom: "12px",
+};
 
-  const buttonStyle = {
-    width: "100%",
-    padding: "12px 16px",
+const field = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "3px",
+  marginBottom: "10px",   
+  fontSize: "14px",
+};
+
+const input = {
+  padding: "8px 10px",   
+  borderRadius: "8px",
+  border: `1px solid ${colors.inputBorder}`,
+  background: colors.inputBg,
+  fontSize: "14px",
+};
+
+const grid2 = {
+  display: "grid",
+  gridTemplateColumns: "1fr 1fr",
+  gap: "10px",           
+};
+
+const btn = {
+  width: "100%",
+  padding: "10px 14px",   
+  background: colors.primary,
+  border: "none",
+  borderRadius: "10px",
+  color: "#fff",
+  fontWeight: 700,
+  cursor: "pointer",
+  fontSize: "15px",
+  marginTop: "6px",
+  boxShadow: "0 3px 10px rgba(0,0,0,0.15)",
+};
+
+
+  const errBox = {
+    background: "#ffdddd",
+    color: "#7b0000",
+    padding: "10px",
     borderRadius: "10px",
-    background: "#007bff",
-    color: "#fff",
-    border: "none",
-    fontWeight: "700",
-    cursor: "pointer",
-    fontSize: "16px",
-  };
-
-  const errorStyle = {
-    background: "#ffe5e5",
-    color: "#911",
-    border: "1px solid #f5c2c7",
-    borderRadius: "8px",
-    padding: "10px 12px",
-    marginBottom: "10px",
-  };
-
-  const checkboxStyle = {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    margin: "8px 0 14px",
+    border: "1px solid #f5b5b5",
+    marginBottom: "12px",
     fontSize: "14px",
   };
 
-  const grid2 = {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "14px",
-  };
+  const checkbox = {
+  display: "flex",
+  alignItems: "center",
+  gap: "6px",
+  margin: "6px 0 10px",
+  fontSize: "14px",
+};
+
 
   return (
-    <div style={pageStyle}>
-      <div style={cardStyle}>
-        <h1 style={{ fontSize: "22px", fontWeight: "700", marginBottom: "20px" }}>
-          Új fiók létrehozása
-        </h1>
+    <div style={wrapper}>
+      <div style={card}>
+        <h1 style={title}>Új fiók létrehozása</h1>
 
-        {error && <div style={errorStyle}>{error}</div>}
+        {error && <div style={errBox}>{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          <label style={fieldStyle}>
+          <label style={field}>
             E-mail cím *
             <input
               type="email"
               name="email"
               value={form.email}
               onChange={handleChange}
-              style={inputStyle}
+              style={input}
               required
             />
           </label>
 
           <div style={grid2}>
-            <label style={fieldStyle}>
+            <label style={field}>
               Utónév *
               <input
                 type="text"
                 name="firstName"
                 value={form.firstName}
                 onChange={handleChange}
-                style={inputStyle}
+                style={input}
                 required
               />
             </label>
 
-            <label style={fieldStyle}>
+            <label style={field}>
               Vezetéknév *
               <input
                 type="text"
                 name="lastName"
                 value={form.lastName}
                 onChange={handleChange}
-                style={inputStyle}
+                style={input}
                 required
               />
             </label>
           </div>
 
-          <label style={fieldStyle}>
+          <label style={field}>
             Telefonszám
             <input
               type="text"
               name="phone"
               value={form.phone}
               onChange={handleChange}
-              style={inputStyle}
+              style={input}
             />
           </label>
 
-          <label style={fieldStyle}>
+          <label style={field}>
             Ország *
             <select
               name="country"
               value={form.country}
               onChange={handleChange}
-              style={inputStyle}
+              style={input}
               required
             >
               <option>Magyarország</option>
               <option>Ausztria</option>
               <option>Németország</option>
-              <option>Románia</option>
               <option>Szlovákia</option>
+              <option>Románia</option>
             </select>
           </label>
 
           <div style={grid2}>
-            <label style={fieldStyle}>
+            <label style={field}>
               Jelszó *
               <input
                 type="password"
                 name="password"
                 value={form.password}
                 onChange={handleChange}
-                style={inputStyle}
+                style={input}
                 required
               />
             </label>
 
-            <label style={fieldStyle}>
+            <label style={field}>
               Jelszó megerősítése *
               <input
                 type="password"
                 name="confirmPassword"
                 value={form.confirmPassword}
                 onChange={handleChange}
-                style={inputStyle}
+                style={input}
                 required
               />
             </label>
           </div>
 
-          <label style={checkboxStyle}>
+          <label style={checkbox}>
             <input
               type="checkbox"
               name="terms"
@@ -251,12 +273,24 @@ export default function RegisterPage() {
             Elfogadom a feltételeket
           </label>
 
-          <button type="submit" style={buttonStyle} disabled={loading}>
+          <button type="submit" style={btn} disabled={loading}>
             {loading ? "Fiók létrehozása..." : "Új fiók létrehozása"}
           </button>
 
-          <div style={{ marginTop: "12px", fontSize: "14px", textAlign: "center" }}>
-            Már van fiókod? <a href="/login">Bejelentkezés</a>
+          <div
+            style={{
+              marginTop: "14px",
+              textAlign: "center",
+              fontSize: "14px",
+            }}
+          >
+            Már van fiókod?{" "}
+            <a
+              href="/login"
+              style={{ color: colors.primary, fontWeight: 600 }}
+            >
+              Bejelentkezés
+            </a>
           </div>
         </form>
       </div>

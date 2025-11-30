@@ -50,11 +50,9 @@ public class UserController {
     public ResponseEntity<?> updateProfile(
             @AuthenticationPrincipal User user,
             @RequestBody Map<String, Object> updates) {
-
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
         User dbUser = userRepository.findByEmail(user.getEmail())
                 .orElseThrow(() -> new RuntimeException("Felhasználó nem található."));
 
@@ -83,9 +81,7 @@ public class UserController {
         if (updates.containsKey("taxId")) dbUser.setTaxId((String) updates.get("taxId"));
         if (updates.containsKey("taxCardNumber")) dbUser.setTaxCardNumber((String) updates.get("taxCardNumber"));
         if (updates.containsKey("nationality")) dbUser.setNationality((String) updates.get("nationality"));
-
         if (updates.containsKey("bankAccount")) dbUser.setBankAccount((String) updates.get("bankAccount"));
-
         userRepository.save(dbUser);
         return ResponseEntity.ok("Profil sikeresen frissítve.");
     }

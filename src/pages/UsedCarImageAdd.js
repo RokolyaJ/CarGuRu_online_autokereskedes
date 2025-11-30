@@ -109,8 +109,8 @@ const handleUpload = async () => {
       <Navbar />
       <div className="upload-container">
         <div className="steps">
-          <div className="step active">1 ✔ Jármű adatai</div>
-          <div className="step current">2 ➤ Képek feltöltése</div>
+          <div className="step active">1 Jármű adatai</div>
+          <div className="step current">2 Képek feltöltése</div>
         </div>
         <h2>Képek feltöltése</h2>
         <p>Tölts fel maximum 12 képet a hirdetéshez.</p>
@@ -157,7 +157,7 @@ const handleUpload = async () => {
         )}
 
         <div className="buttons">
-          <button onClick={() => navigate(-1)}>← Vissza</button>
+          <button onClick={() => navigate(-1)}>Vissza</button>
           <button onClick={handleUpload} disabled={uploading}>
             {uploading ? "Feltöltés..." : "Tovább"}
           </button>

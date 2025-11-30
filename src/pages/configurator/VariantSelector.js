@@ -146,15 +146,16 @@ function VariantSelector() {
                   tabIndex={0}
                   onFocus={(e) => (e.currentTarget.style.outline = "none")}
                 >
-                  <img
-  src={
-    variant.imageUrl
-      ? `${API_BASE_URL}${variant.imageUrl}`
-      : "/images/default-car.png"
-  }
-  alt={variant.name}
-  style={styles.image}
-/>
+                 <img
+                    src={
+                      variant.imageUrl?.startsWith("/images")
+                        ? variant.imageUrl
+                        : `${API_BASE_URL}${variant.imageUrl}`
+                    }
+                    alt={variant.name}
+                    style={styles.image}
+                  />
+
                   <h3 style={styles.variantName}>{variant.name}</h3>
 
                   {variant.price !== null && variant.price !== undefined && (
@@ -295,8 +296,9 @@ const styles = {
     bottom: 0,
     left: 0,
     width: "100vw",
-    backgroundColor: "#003d2c",
-    color: "#fff",
+backgroundColor: "#1F2937"  , 
+color: "#F9FAFB"             ,
+
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",

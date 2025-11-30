@@ -46,7 +46,9 @@ const ImageCarousel = ({ images }) => {
 };
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
+const { setUser } = useAuth();
+
 
   const [profile, setProfile] = useState({});
   const [saveMsg, setSaveMsg] = useState("");
@@ -55,6 +57,9 @@ export default function ProfilePage() {
 const [recipientEmail, setRecipientEmail] = useState("");
 const [transferAmount, setTransferAmount] = useState("");
 const [transferMsg, setTransferMsg] = useState("");
+const [profileImgMsg, setProfileImgMsg] = useState("");
+const [newProfileImage, setNewProfileImage] = useState(null);
+
 
 const handleTransfer = async () => {
   if (!recipientEmail || !transferAmount) {
@@ -110,6 +115,97 @@ const loadProfile = async () => {
     console.error("Profil betöltési hiba:", err);
   }
 };
+const handleProfileImageUpload = async () => {
+  if (!newProfileImage) {
+    setProfileImgMsg("Kérlek válassz ki egy képet!");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", newProfileImage);
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/users/upload-profile-picture`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${user?.token}`
+      },
+      body: formData,
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+
+      setProfile((p) => ({
+        ...p,
+        profileImage: data.url
+      }));
+
+      setUser((prev) => ({ ...prev, profileImage: data.url }));
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          ...user,
+          profileImage: data.url,
+        })
+      );
+
+      await refreshUser();
+
+      setProfileImgMsg("Profilkép sikeresen frissítve!");
+      setNewProfileImage(null);
+    } else {
+      setProfileImgMsg("Hiba történt a feltöltéskor.");
+    }
+  } catch (err) {
+    setProfileImgMsg("Kapcsolódási hiba.");
+  }
+};
+const handleSetExistingProfileImage = async (imgUrl) => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/users/set-profile-picture`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${user?.token}`
+      },
+      body: JSON.stringify({ imageUrl: imgUrl })
+    });
+
+    if (!res.ok) {
+      setProfileImgMsg("Nem sikerült beállítani a képet.");
+      return;
+    }
+
+    const data = await res.json();
+    setProfile((p) => ({
+      ...p,
+      profileImage: data.url
+    }));
+    setUser((prev) => ({
+      ...prev,
+      profileImage: data.url
+    }));
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify({
+        ...user,
+        profileImage: data.url,
+      })
+    );
+
+    await refreshUser();
+    setProfileImgMsg("Profilkép beállítva!");
+
+  } catch (err) {
+    console.error(err);
+    setProfileImgMsg("Kapcsolódási hiba.");
+  }
+};
+
+
 
 useEffect(() => {
   const localBal = localStorage.getItem("balance");
@@ -207,9 +303,10 @@ const calculatePrice = (data) => {
     }
 
     const formData = new FormData();
-    formData.append("userId", profile.id);
-    formData.append("type", selectedType);
-    formData.append("file", selectedFile);
+formData.append("userId", profile.id);  
+formData.append("type", selectedType);
+formData.append("file", selectedFile);
+
 
     try {
       const res = await fetch(`${baseUrl}/api/documents/upload`, {
@@ -314,6 +411,25 @@ const handleEdit = (car) => {
       setTradeMsg("Kapcsolódási hiba.");
     }
   };
+const handleDeleteDocument = async (id) => {
+  if (!window.confirm("Biztosan törölni szeretnéd ezt a dokumentumot?")) return;
+
+  try {
+    const res = await fetch(`${baseUrl}/api/documents/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${user?.token}` },
+    });
+
+    if (res.ok) {
+      setDocuments((prev) => prev.filter((doc) => doc.id !== id));
+    } else {
+      alert("Hiba történt a törlés során.");
+    }
+  } catch (err) {
+    console.error("Dokumentum törlési hiba:", err);
+    alert("Kapcsolódási hiba.");
+  }
+};
 
   if (!profile) return <p className="profile-wrap">Betöltés...</p>;
 
@@ -383,39 +499,23 @@ const handleEdit = (car) => {
     {transferMsg && <p className="msg ok">{transferMsg}</p>}
   </div>
 </section>
-
-
-      <section className="card-section">
-        <h2 className="section-title">Felhasználói adatok</h2>
-        <div className="grid">
-          <input type="text" placeholder="Keresztnév" value={profile.firstName || ""} onChange={(e) => setProfile({ ...profile, firstName: e.target.value })} />
-          <input type="text" placeholder="Vezetéknév" value={profile.lastName || ""} onChange={(e) => setProfile({ ...profile, lastName: e.target.value })} />
-          <input type="text" placeholder="Telefonszám" value={profile.phone || ""} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} />
-          <input type="text" placeholder="Ország" value={profile.country || ""} onChange={(e) => setProfile({ ...profile, country: e.target.value })} />
-        </div>
-      </section>
-
-      <section className="card-section">
-        <h2 className="section-title">Személyes és igazolvány adatok</h2>
-        <div className="grid">
-          <input type="date" value={profile.birthDate || ""} onChange={(e) => setProfile({ ...profile, birthDate: e.target.value })} />
-          <input type="text" placeholder="Születési hely" value={profile.birthPlace || ""} onChange={(e) => setProfile({ ...profile, birthPlace: e.target.value })} />
-          <input type="text" placeholder="Anyja neve" value={profile.motherName || ""} onChange={(e) => setProfile({ ...profile, motherName: e.target.value })} />
-          <input type="text" placeholder="Személyi igazolvány száma" value={profile.idCardNumber || ""} onChange={(e) => setProfile({ ...profile, idCardNumber: e.target.value })} />
-          <input type="date" value={profile.idCardExpiry || ""} onChange={(e) => setProfile({ ...profile, idCardExpiry: e.target.value })} />
-          <input type="text" placeholder="Személyi szám" value={profile.personalNumber || ""} onChange={(e) => setProfile({ ...profile, personalNumber: e.target.value })} />
-          <input type="text" placeholder="Állampolgárság" value={profile.nationality || ""} onChange={(e) => setProfile({ ...profile, nationality: e.target.value })} />
-        </div>
-      </section>
 <section className="card-section">
   <h2 className="section-title">Banki adatok</h2>
   <div className="grid">
-    <input
-      type="text"
-      placeholder="Bankszámlaszám"
-      value={profile.bankAccount || ""}
-      onChange={(e) => setProfile({ ...profile, bankAccount: e.target.value })}
-    />
+
+    <div className="floating-group">
+      <input
+        type="text"
+        className={`floating-input ${profile.bankAccount ? "has-value" : ""}`}
+        value={profile.bankAccount || ""}
+        onChange={(e) =>
+          setProfile({ ...profile, bankAccount: e.target.value })
+        }
+        placeholder=" "
+      />
+      <label className="floating-label">Bankszámlaszám</label>
+    </div>
+
   </div>
 
   <button
@@ -429,21 +529,17 @@ const handleEdit = (car) => {
 
       try {
         const res = await fetch(`${baseUrl}/api/users/me/update`, {
-  method: "PUT",
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${user?.token}`,
-  },
-  body: JSON.stringify({ bankAccount: profile.bankAccount }),
-});
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${user?.token}`,
+          },
+          body: JSON.stringify({ bankAccount: profile.bankAccount }),
+        });
 
-        if (res.ok) {
-          alert("Bankszámlaszám sikeresen mentve!");
-        } else {
-          alert("Hiba történt a mentés során.");
-        }
-      } catch (err) {
-        console.error("Hiba a mentés során:", err);
+        if (res.ok) alert("Bankszámlaszám sikeresen mentve!");
+        else alert("Hiba történt a mentés során.");
+      } catch {
         alert("Kapcsolódási hiba a szerverhez.");
       }
     }}
@@ -451,20 +547,343 @@ const handleEdit = (car) => {
     Bankszámlaszám mentése
   </button>
 </section>
+<section className="card-section">
+  <h2 className="section-title">Profilkép</h2>
+
+  <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+    
+   <img
+  src={profile.profileImage || "/default-avatar.png"}
+  alt="Profilkép"
+  style={{
+    width: "120px",
+    height: "120px",
+    borderRadius: "50%",
+    objectFit: "cover",
+    border: "3px solid #ddd",
+  }}
+/>
+
+
+    <div>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => setNewProfileImage(e.target.files[0])}
+
+      />
+      <button
+        className="btn-primary"
+        style={{ marginTop: "10px" }}
+        onClick={handleProfileImageUpload}
+      >
+        Profilkép mentése
+      </button>
+    </div>
+
+  </div>
+
+  {profileImgMsg && <p className="msg ok">{profileImgMsg}</p>}
+</section>
+<section className="card-section">
+  <h3 className="section-title">Korábban feltöltött képek</h3>
+
+  <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+    {profile.previousImages && profile.previousImages.length > 0 ? (
+      profile.previousImages.map((url, index) => (
+        <img
+          key={index}
+          src={url}
+          alt="old profile"
+          onClick={() => handleSetExistingProfileImage(url)}
+          style={{
+            width: "70px",
+            height: "70px",
+            borderRadius: "50%",
+            objectFit: "cover",
+            cursor: "pointer",
+            border: "3px solid #ddd",
+            transition: "0.2s",
+          }}
+        />
+      ))
+    ) : (
+      <p>Nincs korábbi profilképed.</p>
+    )}
+  </div>
+</section>
+
+
+     <section className="card-section">
+  <h2 className="section-title">Felhasználói adatok</h2>
+  <div className="grid">
+
+    <div className="floating-group">
+      <input
+        type="text"
+        className={`floating-input ${profile.firstName ? "has-value" : ""}`}
+        value={profile.firstName || ""}
+        onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
+        placeholder=" "
+      />
+      <label className="floating-label">Keresztnév</label>
+    </div>
+
+    <div className="floating-group">
+      <input
+        type="text"
+        className={`floating-input ${profile.lastName ? "has-value" : ""}`}
+        value={profile.lastName || ""}
+        onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
+        placeholder=" "
+      />
+      <label className="floating-label">Vezetéknév</label>
+    </div>
+
+    <div className="floating-group">
+      <input
+        type="text"
+        className={`floating-input ${profile.phone ? "has-value" : ""}`}
+        value={profile.phone || ""}
+        onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+        placeholder=" "
+      />
+      <label className="floating-label">Telefonszám</label>
+    </div>
+
+    <div className="floating-group">
+      <input
+        type="text"
+        className={`floating-input ${profile.country ? "has-value" : ""}`}
+        value={profile.country || ""}
+        onChange={(e) => setProfile({ ...profile, country: e.target.value })}
+        placeholder=" "
+      />
+      <label className="floating-label">Ország</label>
+    </div>
+
+  </div>
+</section>
+<section className="card-section">
+  <h2 className="section-title">Jelszó módosítása</h2>
+
+  <div className="grid">
+
+    <div className="floating-group">
+      <input
+        type="password"
+        className={`floating-input ${passwords.oldPassword ? "has-value" : ""}`}
+        value={passwords.oldPassword}
+        onChange={(e) =>
+          setPasswords((p) => ({ ...p, oldPassword: e.target.value }))
+        }
+        placeholder=" "
+      />
+      <label className="floating-label">Régi jelszó</label>
+    </div>
+
+    <div className="floating-group">
+      <input
+        type="password"
+        className={`floating-input ${passwords.newPassword ? "has-value" : ""}`}
+        value={passwords.newPassword}
+        onChange={(e) =>
+          setPasswords((p) => ({ ...p, newPassword: e.target.value }))
+        }
+        placeholder=" "
+      />
+      <label className="floating-label">Új jelszó</label>
+    </div>
+
+  </div>
+
+  <button className="btn-primary" onClick={handleChangePassword}>
+    Jelszó frissítése
+  </button>
+
+  {passMsg && <p className="msg ok">{passMsg}</p>}
+</section>
+
+     <section className="card-section">
+  <h2 className="section-title">Személyes és igazolvány adatok</h2>
+  <div className="grid">
+
+    <div className="floating-group">
+      <input
+        type="date"
+        className={`floating-input ${profile.birthDate ? "has-value" : ""}`}
+        value={profile.birthDate ? profile.birthDate.substring(0, 10) : ""}
+        onChange={(e) =>
+          setProfile({ ...profile, birthDate: e.target.value })
+        }
+        placeholder=" "
+      />
+      <label className="floating-label">Születési dátum</label>
+    </div>
+
+    <div className="floating-group">
+      <input
+        type="date"
+        className={`floating-input ${profile.idCardExpiry ? "has-value" : ""}`}
+        value={profile.idCardExpiry ? profile.idCardExpiry.substring(0, 10) : ""}
+        onChange={(e) =>
+          setProfile({ ...profile, idCardExpiry: e.target.value })
+        }
+        placeholder=" "
+      />
+      <label className="floating-label">Igazolvány lejárati dátuma</label>
+    </div>
+
+    <div className="floating-group">
+      <input
+        type="text"
+        className={`floating-input ${profile.motherName ? "has-value" : ""}`}
+        value={profile.motherName || ""}
+        onChange={(e) =>
+          setProfile({ ...profile, motherName: e.target.value })
+        }
+        placeholder=" "
+      />
+      <label className="floating-label">Anyja neve</label>
+    </div>
+
+    <div className="floating-group">
+      <input
+        type="text"
+        className={`floating-input ${profile.idCardNumber ? "has-value" : ""}`}
+        value={profile.idCardNumber || ""}
+        onChange={(e) =>
+          setProfile({ ...profile, idCardNumber: e.target.value })
+        }
+        placeholder=" "
+      />
+      <label className="floating-label">Személyi igazolvány száma</label>
+    </div>
+
+    <div className="floating-group">
+      <input
+        type="text"
+        className={`floating-input ${profile.personalNumber ? "has-value" : ""}`}
+        value={profile.personalNumber || ""}
+        onChange={(e) =>
+          setProfile({ ...profile, personalNumber: e.target.value })
+        }
+        placeholder=" "
+      />
+      <label className="floating-label">Személyi szám</label>
+    </div>
+
+    <div className="floating-group">
+      <input
+        type="text"
+        className={`floating-input ${profile.nationality ? "has-value" : ""}`}
+        value={profile.nationality || ""}
+        onChange={(e) =>
+          setProfile({ ...profile, nationality: e.target.value })
+        }
+        placeholder=" "
+      />
+      <label className="floating-label">Állampolgárság</label>
+    </div>
+
+  </div>
+</section>
+
+
+
+
 
       <section className="card-section">
-        <h2 className="section-title">Lakcím és adó adatok</h2>
-        <div className="grid">
-          <input type="text" placeholder="Ország" value={profile.addressCountry || ""} onChange={(e) => setProfile({ ...profile, addressCountry: e.target.value })} />
-          <input type="text" placeholder="Város" value={profile.addressCity || ""} onChange={(e) => setProfile({ ...profile, addressCity: e.target.value })} />
-          <input type="text" placeholder="Irányítószám" value={profile.addressZip || ""} onChange={(e) => setProfile({ ...profile, addressZip: e.target.value })} />
-          <input type="text" placeholder="Utca, házszám" value={profile.addressStreet || ""} onChange={(e) => setProfile({ ...profile, addressStreet: e.target.value })} />
-          <input type="text" placeholder="Adószám" value={profile.taxId || ""} onChange={(e) => setProfile({ ...profile, taxId: e.target.value })} />
-          <input type="text" placeholder="Adókártya szám" value={profile.taxCardNumber || ""} onChange={(e) => setProfile({ ...profile, taxCardNumber: e.target.value })} />
-        </div>
-        <button className="btn-primary" onClick={handleSaveProfile}>Mentés</button>
-        {saveMsg && <p className="msg ok">{saveMsg}</p>}
-      </section>
+  <h2 className="section-title">Lakcím és adó adatok</h2>
+  <div className="grid">
+
+    <div className="floating-group">
+      <input
+        type="text"
+        className={`floating-input ${profile.addressCountry ? "has-value" : ""}`}
+        value={profile.addressCountry || ""}
+        onChange={(e) =>
+          setProfile({ ...profile, addressCountry: e.target.value })
+        }
+        placeholder=" "
+      />
+      <label className="floating-label">Ország</label>
+    </div>
+
+    <div className="floating-group">
+      <input
+        type="text"
+        className={`floating-input ${profile.addressCity ? "has-value" : ""}`}
+        value={profile.addressCity || ""}
+        onChange={(e) =>
+          setProfile({ ...profile, addressCity: e.target.value })
+        }
+        placeholder=" "
+      />
+      <label className="floating-label">Város</label>
+    </div>
+
+    <div className="floating-group">
+      <input
+        type="text"
+        className={`floating-input ${profile.addressZip ? "has-value" : ""}`}
+        value={profile.addressZip || ""}
+        onChange={(e) =>
+          setProfile({ ...profile, addressZip: e.target.value })
+        }
+        placeholder=" "
+      />
+      <label className="floating-label">Irányítószám</label>
+    </div>
+
+    <div className="floating-group">
+      <input
+        type="text"
+        className={`floating-input ${profile.addressStreet ? "has-value" : ""}`}
+        value={profile.addressStreet || ""}
+        onChange={(e) =>
+          setProfile({ ...profile, addressStreet: e.target.value })
+        }
+        placeholder=" "
+      />
+      <label className="floating-label">Utca, házszám</label>
+    </div>
+
+    <div className="floating-group">
+      <input
+        type="text"
+        className={`floating-input ${profile.taxId ? "has-value" : ""}`}
+        value={profile.taxId || ""}
+        onChange={(e) =>
+          setProfile({ ...profile, taxId: e.target.value })
+        }
+        placeholder=" "
+      />
+      <label className="floating-label">Adószám</label>
+    </div>
+
+    <div className="floating-group">
+      <input
+        type="text"
+        className={`floating-input ${profile.taxCardNumber ? "has-value" : ""}`}
+        value={profile.taxCardNumber || ""}
+        onChange={(e) =>
+          setProfile({ ...profile, taxCardNumber: e.target.value })
+        }
+        placeholder=" "
+      />
+      <label className="floating-label">Adókártya szám</label>
+    </div>
+
+  </div>
+
+  <button className="btn-primary" onClick={handleSaveProfile}>
+    Mentés
+  </button>
+
+  {saveMsg && <p className="msg ok">{saveMsg}</p>}
+</section>
+
 
 <section className="card-section">
   <h2 className="section-title">Feltöltött autóim</h2>
@@ -514,16 +933,17 @@ const handleEdit = (car) => {
             <div className="bottom-row">
               <div className="price">{price.toLocaleString()} Ft</div>
               <div className="buttons">
-                <button className="config-btn" onClick={() => handleEdit(car)}>
-                  Módosítás
-                </button>
-                <button
-                  className="remove-btn"
-                  onClick={() => handleDelete(car.id)}
-                >
-                  Törlés
-                </button>
-              </div>
+  <button className="btn-primary" onClick={() => handleEdit(car)}>
+    Módosítás
+  </button>
+  <button
+    className="btn-danger"
+    onClick={() => handleDelete(car.id)}
+  >
+    Törlés
+  </button>
+</div>
+
             </div>
           </div>
         </div>
@@ -564,18 +984,55 @@ const handleEdit = (car) => {
                     alignItems: "center",
                   }}
                 >
-                  <div>
-                    <strong>{d.type}</strong>{" "}
-                    <span style={{ color: "#666" }}>({fileName})</span>
-                    <br />
-                    <span style={{ fontSize: "0.9rem", color: d.status === "PENDING" ? "#ca8a04" : "#16a34a", fontWeight: 500 }}>
-                      {d.status === "PENDING" ? "⏳ Jóváhagyás alatt" : "Elfogadva"}
-                    </span>
-                  </div>
-                  <a href={`${API_BASE_URL}${d.url}`} target="_blank" rel="noopener noreferrer"
-                    style={{ background: "#2563eb", color: "#fff", padding: "6px 12px", borderRadius: "6px", textDecoration: "none", fontWeight: 500 }}>
-                    Megnyitás
-                  </a>
+                 <div>
+  <strong>{d.type}</strong>{" "}
+  <span style={{ color: "#666" }}>({fileName})</span>
+  <br />
+  <span
+    style={{
+      fontSize: "0.9rem",
+      color: d.status === "PENDING" ? "#ca8a04" : "#16a34a",
+      fontWeight: 500,
+    }}
+  >
+    {d.status === "PENDING" ? "Jóváhagyás alatt" : "Elfogadva"}
+  </span>
+</div>
+
+<div style={{ display: "flex", gap: "10px" }}>
+  <a
+   href={d.url}
+
+    target="_blank"
+    rel="noopener noreferrer"
+    style={{
+      background: "#2563eb",
+      color: "#fff",
+      padding: "6px 12px",
+      borderRadius: "6px",
+      textDecoration: "none",
+      fontWeight: 500,
+    }}
+  >
+    Megnyitás
+  </a>
+
+  <button
+    onClick={() => handleDeleteDocument(d.id)}
+    style={{
+      background: "#ef4444",
+      color: "#fff",
+      padding: "6px 12px",
+      borderRadius: "6px",
+      border: "none",
+      cursor: "pointer",
+      fontWeight: 500,
+    }}
+  >
+    Törlés
+  </button>
+</div>
+
                 </li>
               );
             })}
@@ -585,22 +1042,49 @@ const handleEdit = (car) => {
         )}
       </section>
 
-      <section className="card-section">
-        <h2 className="section-title">Jelszó módosítása</h2>
-        <div className="grid">
-          <input type="password" name="oldPassword" value={passwords.oldPassword} onChange={(e) => setPasswords((p) => ({ ...p, oldPassword: e.target.value }))} placeholder="Régi jelszó" />
-          <input type="password" name="newPassword" value={passwords.newPassword} onChange={(e) => setPasswords((p) => ({ ...p, newPassword: e.target.value }))} placeholder="Új jelszó" />
-        </div>
-        <button className="btn-primary" onClick={handleChangePassword}>Jelszó frissítése</button>
-        {passMsg && <p className="msg ok">{passMsg}</p>}
-      </section>
+    
+
+
 
       <style>{`
         .profile-wrap { max-width: 900px; margin: 40px auto; padding: 20px; }
         .page-title { font-size: 28px; font-weight: 800; margin-bottom: 22px; }
         .card-section { background: #fafafa; border: 1px solid #e5e7eb; border-radius: 12px; padding: 22px; margin-bottom: 26px; }
         .section-title { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
-        .grid { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+        .grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 40px;   /* EZ TOLJA JOBBRA A MÁSODIK OSZLOPOT */
+  row-gap: 14px;
+}
+.btn-primary {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
         input, select { padding: 10px; border-radius: 8px; border: 1px solid #ccc; }
         .btn-primary { margin-top: 10px; background: #2563eb; color: #fff; border: none; border-radius: 8px; padding: 10px 16px; cursor: pointer; font-weight: 600; }
         .btn-primary:hover { background: #1d4ed8; }
@@ -614,6 +1098,41 @@ const handleEdit = (car) => {
   margin-top: 8px;
   font-weight: 600;
 }
+.floating-group {
+  position: relative;
+}
+
+.floating-input {
+  width: 100%;
+  padding: 14px 12px 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: white;
+  font-size: 15px;
+  outline: none;
+}
+
+.floating-label {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  font-size: 15px;
+  pointer-events: none;
+  background: white;
+  transition: 0.2s;
+  padding: 0 4px;
+}
+
+/* animáció amikor be van írva valami */
+.floating-input:focus + .floating-label,
+.floating-input.has-value + .floating-label {
+  top: -6px;
+  font-size: 12px;
+  color: #2563eb;
+}
+
 
       `}</style>
     </div>

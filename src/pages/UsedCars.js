@@ -258,12 +258,6 @@ navigate("/used-cars/results", { state: { cars: data, filters } });
           {featuredCars.map(c => <Card key={`f${c.id}`} car={c} />)}
           {!featuredCars.length && <p>Nincs kiemelt autó.</p>}
         </div>
-
-        <h2>Találatok</h2>
-        <div style={grid.cards}>
-          {cars.map(c => <Card key={c.id} car={c} />)}
-          {!loading && !cars.length && <p>Nincs találat.</p>}
-        </div>
       </div>
     </div>
   );
@@ -312,30 +306,52 @@ function Dual({label, left, right, onChange, type="text"}){
 
 
 function Card({ car }) {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+  const [imgUrl, setImgUrl] = useState(null);
+
+  useEffect(() => {
+    api.get(`/api/images/${car.id}`)
+      .then(({ data }) => {
+        if (data.length > 0) {
+          setImgUrl(API_BASE_URL + data[0].image); 
+        } else {
+          setImgUrl("/placeholder.png");
+        }
+      })
+      .catch(() => setImgUrl("/placeholder.png"));
+  }, [car.id]);
 
   return (
     <article
       style={{ ...card.root, cursor: "pointer" }}
       onClick={() => navigate(`/used-cars/${car.id}`)}
-
     >
       <div style={card.imgWrap}>
-        <img src={car.imageUrl || "/placeholder.png"} alt={`${car.brand} ${car.model}`} style={card.img} />
+        <img
+          src={imgUrl || "/placeholder.png"}
+          alt={`${car.brand} ${car.model}`}
+          style={card.img}
+        />
       </div>
+
       <div style={card.body}>
         <div style={card.title}>{car.brand} {car.model}</div>
+
         <div style={card.meta}>
           <span>{car.year}</span>
           <span>{(car.mileage || 0).toLocaleString("hu-HU")} km</span>
           <span>{car.fuel}</span>
           <span>{car.body}</span>
         </div>
-        <div style={card.price}>{(car.price || 0).toLocaleString("hu-HU")} Ft</div>
+
+        <div style={card.price}>
+          {(car.price || 0).toLocaleString("hu-HU")} Ft
+        </div>
       </div>
     </article>
   );
 }
+
 
 
 

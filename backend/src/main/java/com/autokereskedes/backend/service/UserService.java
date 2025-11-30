@@ -1,5 +1,6 @@
 package com.autokereskedes.backend.service;
 
+import com.autokereskedes.backend.dto.UserUpdateAdminRequest;
 import com.autokereskedes.backend.model.User;
 import com.autokereskedes.backend.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -105,6 +106,18 @@ public class UserService {
     }
     public static void main(String[] args) {
     System.out.println(new BCryptPasswordEncoder().encode("Teszzt123"));
+}
+public User updateUserByAdmin(Long id, UserUpdateAdminRequest data) {
+    User user = userRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Felhasználó nem található."));
+
+    if (data.getFirstName() != null) user.setFirstName(data.getFirstName());
+    if (data.getLastName() != null) user.setLastName(data.getLastName());
+    if (data.getEmail() != null) user.setEmail(data.getEmail());
+    if (data.getPhone() != null) user.setPhone(data.getPhone());
+    if (data.getCountry() != null) user.setCountry(data.getCountry());
+
+    return userRepository.save(user);
 }
 
 }

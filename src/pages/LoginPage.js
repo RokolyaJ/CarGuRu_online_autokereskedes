@@ -75,7 +75,15 @@ export default function LoginPage() {
         console.warn("Nincs userId az AuthResponse-ban!");
       }
 
-      login(tokenValue, data.userId, data.email, data.fullName, data.role);
+      login(
+  tokenValue,
+  data.userId,
+  data.email,
+  data.fullName,
+  data.role,
+  data.profileImage  
+);
+
 
       if (data.role === "ADMIN") {
         navigate("/admin");

@@ -66,50 +66,41 @@ if (path.contains("/api/variants/")
 
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
 
+
         if (!StringUtils.hasText(header) || !header.startsWith("Bearer ")) {
             chain.doFilter(request, response);
             return;
         }
-
         String token = header.substring(7);
-
         try {
             Jws<Claims> jws = jwtService.parse(token);
             String email = jws.getBody().getSubject();
-
             var userOpt = userRepository.findByEmail(email.toLowerCase().trim());
             if (userOpt.isEmpty()) {
                 SecurityContextHolder.clearContext();
                 chain.doFilter(request, response);
                 return;
             }
-
             User user = userOpt.get();
-
             var authorities = Collections.singleton(
                     new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
             );
-
             var authToken = new UsernamePasswordAuthenticationToken(
                     user,
                     null,
                     authorities
             );
-
             authToken.setDetails(
                     new WebAuthenticationDetailsSource().buildDetails(request)
             );
-
             SecurityContextHolder.getContext().setAuthentication(authToken);
-
             System.out.println("JWT AUTH OK: " + user.getEmail());
-
-        } catch (Exception ex) {
-    System.out.println("JWT ERROR: " + ex.getMessage());
-    SecurityContextHolder.clearContext();
-    chain.doFilter(request, response);  
-    return;
-}
+            } catch (Exception ex) {
+            System.out.println("JWT ERROR: " + ex.getMessage());
+            SecurityContextHolder.clearContext();
+            chain.doFilter(request, response);  
+            return;
+        }
 
 
         chain.doFilter(request, response);

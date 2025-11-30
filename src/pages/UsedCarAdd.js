@@ -346,7 +346,7 @@ export default function UsedCarAdd() {
           </div>
 
           <button type="submit" className="submit-btn">
-            Tovább a képfeltöltéshez →
+            Tovább a képfeltöltéshez
           </button>
         </form>
       </div>

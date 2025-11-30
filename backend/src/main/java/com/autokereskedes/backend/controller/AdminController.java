@@ -2,6 +2,7 @@ package com.autokereskedes.backend.controller;
 
 import com.autokereskedes.backend.dto.ResetPasswordRequest;
 import com.autokereskedes.backend.dto.UserAdminDto;
+import com.autokereskedes.backend.dto.UserUpdateAdminRequest;
 import com.autokereskedes.backend.model.User;
 import com.autokereskedes.backend.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -59,4 +60,17 @@ public class AdminController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
+    @PutMapping("/users/{id}")
+public ResponseEntity<?> updateUserByAdmin(
+        @PathVariable Long id,
+        @RequestBody UserUpdateAdminRequest req) {
+
+    try {
+        User updated = userService.updateUserByAdmin(id, req);
+        return ResponseEntity.ok(UserAdminDto.from(updated));
+    } catch (RuntimeException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+}
+
 }

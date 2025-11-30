@@ -42,12 +42,12 @@ export default function Cart() {
     }
   }, [cart]);
 
-  // KÉP URL ÖSSZEÁLLÍTÁSA
   function getImageUrl(url) {
-    if (!url) return "/no-image.png";
-    if (url.startsWith("http")) return url;
-    return `${API_BASE_URL}${url}`;
-  }
+  if (!url) return "/images/default-car.png";
+  if (url.startsWith("http")) return url;
+  return `${window.location.origin}${url}`;
+}
+
 
   function goToConfigurator(item) {
     const id = item?.variantId;

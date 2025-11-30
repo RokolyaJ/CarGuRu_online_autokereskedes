@@ -29,8 +29,6 @@ public interface UsedCarRepository extends JpaRepository<UsedCar, Long>, JpaSpec
 
     @Query(value = "SELECT DISTINCT seats FROM usedcars WHERE seats IS NOT NULL ORDER BY seats", nativeQuery = true)
     List<Integer> distinctSeats();
-
-    // Képek
     @Query(value = """
             SELECT i.image
             FROM usedcar_images i

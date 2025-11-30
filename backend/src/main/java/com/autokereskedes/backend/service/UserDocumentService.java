@@ -4,65 +4,83 @@ import com.autokereskedes.backend.model.User;
 import com.autokereskedes.backend.model.UserDocument;
 import com.autokereskedes.backend.repository.UserDocumentRepository;
 import com.autokereskedes.backend.repository.UserRepository;
+import com.cloudinary.Cloudinary;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import com.cloudinary.utils.ObjectUtils;
 
-import java.io.IOException;
-import java.nio.file.*;
 import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class UserDocumentService {
 
     private final UserRepository userRepository;
-    private final UserDocumentRepository userDocumentRepository;
+    private final UserDocumentRepository documentRepo;
+    private final Cloudinary cloudinary;
 
-    private static final String UPLOAD_DIR = "uploads/";
+    public UserDocument uploadOrUpdateFile(Long userId, String type, MultipartFile file) throws Exception {
 
-    public UserDocument uploadOrUpdateFile(Long userId, String type, MultipartFile file) throws IOException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Felhasználó nem található"));
+        String safeId = UUID.randomUUID().toString();
 
-        String username = user.getUsername();
-        if (username == null || username.isBlank()) {
-            throw new RuntimeException("Felhasználónév hiányzik, nem lehet menteni a fájlt.");
-        }
+        Map<String, Object> uploadResult = cloudinary.uploader().upload(
+                file.getBytes(),
+                ObjectUtils.asMap(
+                        "folder", "documents/" + user.getUsername(),
+                        "resource_type", "raw",
+                        "public_id", safeId,
+                        "overwrite", true
+                )
+        );
+        String url = uploadResult.get("secure_url").toString();
 
-        Path userFolder = Paths.get(UPLOAD_DIR, username);
-        Files.createDirectories(userFolder);
-
-        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-        Path filePath = userFolder.resolve(fileName);
-
-        Files.write(filePath, file.getBytes(), StandardOpenOption.CREATE);
-
-        String fileUrl = "/uploads/" + username + "/" + fileName;
-
-        Optional<UserDocument> existing = userDocumentRepository.findByUserIdAndType(userId, type);
+        Optional<UserDocument> existing = documentRepo.findByUserIdAndType(userId, type);
 
         if (existing.isPresent()) {
             UserDocument doc = existing.get();
-            doc.setUrl(fileUrl);
+            doc.setUrl(url);
             doc.setStatus("PENDING");
             doc.setUploadedAt(OffsetDateTime.now());
-            return userDocumentRepository.save(doc);
+            return documentRepo.save(doc);
         }
 
         UserDocument newDoc = new UserDocument();
         newDoc.setUser(user);
         newDoc.setType(type);
-        newDoc.setUrl(fileUrl);
+        newDoc.setUrl(url);
         newDoc.setStatus("PENDING");
         newDoc.setUploadedAt(OffsetDateTime.now());
 
-        return userDocumentRepository.save(newDoc);
+        return documentRepo.save(newDoc);
+    }
+
+
+    public void deleteDocument(Long id) throws Exception {
+        Optional<UserDocument> docOpt = documentRepo.findById(id);
+
+        if (docOpt.isEmpty())
+            return;
+
+        UserDocument doc = docOpt.get();
+
+        String url = doc.getUrl();
+        String fileName = url.substring(url.lastIndexOf("/") + 1);
+        String publicId = fileName.contains(".")
+                ? fileName.substring(0, fileName.lastIndexOf("."))
+                : fileName;
+        cloudinary.uploader().destroy(
+                "documents/" + doc.getUser().getUsername() + "/" + publicId,
+                Map.of()
+        );
+
+        documentRepo.delete(doc);
     }
 
     public List<UserDocument> getUserDocuments(Long userId) {
-        return userDocumentRepository.findByUserId(userId);
+        return documentRepo.findByUserId(userId);
     }
 }

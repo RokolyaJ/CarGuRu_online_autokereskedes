@@ -1,5 +1,6 @@
 package com.autokereskedes.backend.controller;
 
+import com.autokereskedes.backend.dto.OrderResponse;
 import com.autokereskedes.backend.model.*;
 import com.autokereskedes.backend.service.OrderService;
 import org.springframework.web.bind.annotation.*;
@@ -18,9 +19,10 @@ public class OrderController {
     }
 
     @PostMapping("/create")
-    public Order createOrder(@RequestBody Order orderRequest) {
-        return orderService.createOrder(orderRequest);
-    }
+public OrderResponse createOrder(@RequestBody Order orderRequest) {
+    return orderService.createOrder(orderRequest);
+}
+
 
     @GetMapping("/{id}")
     public Optional<Order> getOrder(@PathVariable Long id) {
@@ -38,4 +40,6 @@ public class OrderController {
     public List<Order> getOrdersByUser(@RequestParam Long userId) {
         return orderService.getOrdersByUser(userId);
     }
+   
+
 }

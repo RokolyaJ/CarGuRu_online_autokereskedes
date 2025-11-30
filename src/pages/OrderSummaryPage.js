@@ -6,7 +6,8 @@ export default function OrderSummaryPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { order, insurance, delivery, total } = location.state || {};
+  const { order, car, insurance, delivery, total } = location.state || {};
+
 
   return (
     <div className="order-summary-page">
@@ -35,23 +36,26 @@ export default function OrderSummaryPage() {
             <h2>
               <Car size={20} className="icon-blue" /> Autó adatok
             </h2>
-            {order?.car ? (
-              <div className="car-details">
-                <img
-                  src={order.car.image || "/car-placeholder.png"}
-                  alt={order.car.name}
-                />
-                <div>
-                  <p className="car-name">{order.car.name}</p>
-                  <p className="car-model">{order.car.model}</p>
-                  <p className="car-price">
-                    {order.car.price?.toLocaleString("hu-HU")} Ft
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <p>Nincs autó adat.</p>
-            )}
+           {car ? (
+          <div className="car-details">
+            <img
+          src={car.image || "/car-placeholder.png"}
+          alt={car.name}
+        />
+
+        <div>
+          <p className="car-name">{car.name}</p>
+
+          <p className="car-price">
+            {car.price?.toLocaleString("hu-HU")} Ft
+          </p>
+        </div>
+
+          </div>
+        ) : (
+          <p>Nincs autó adat.</p>
+        )}
+
           </div>
 
           <div className="grid">
@@ -119,15 +123,15 @@ export default function OrderSummaryPage() {
             <Home size={18} /> Főoldalra
           </button>
           <button
-  onClick={() =>
-    navigate("/my-orders", {
-      state: { order, insurance, delivery, total },
-    })
-  }
-  className="btn blue"
->
-  Saját rendeléseim
-</button>
+          onClick={() =>
+          navigate("/my-orders", {
+          state: { order, car, insurance, delivery, total }
+        })
+          }
+          className="btn blue"
+        >
+          Saját rendeléseim
+        </button>
         </div>
       </div>
 

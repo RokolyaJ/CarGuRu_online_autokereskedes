@@ -100,7 +100,7 @@ const TestDriveBookingPage = () => {
     return;
   }
 
-  const token = localStorage.getItem("token");  // <-- EZ KELL
+  const token = localStorage.getItem("token"); 
 
   try {
     await axios.post(
@@ -123,7 +123,7 @@ const TestDriveBookingPage = () => {
       },
       {
         headers: {
-          Authorization: `Bearer ${token}`,   // <-- EZ NÉLKÜL 401
+          Authorization: `Bearer ${token}`,  
           "Content-Type": "application/json",
         },
       }

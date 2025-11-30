@@ -31,8 +31,6 @@ public class Variant {
     @OneToMany(mappedBy = "variant", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<StockVehicle> stockVehicles = new HashSet<>();
 
-
-    // ========= EXTERIOR =========
     @Column(columnDefinition = "TEXT")
     private String exteriorDescription;
 
@@ -42,8 +40,6 @@ public class Variant {
     @Column(name = "exterior_images", columnDefinition = "TEXT")
     private String exteriorImages;
 
-
-    // ========= INTERIOR =========
     @Column(columnDefinition = "TEXT")
     private String interiorDescription;
 
@@ -53,29 +49,21 @@ public class Variant {
     @Column(name = "interior_images", columnDefinition = "TEXT")
     private String interiorImages;
 
-
-    // ========= GALLERY =========
     @Column(name = "gallery_images", columnDefinition = "TEXT")
     private String galleryImages;
 
-
-    // ========= INNOVATION =========
     @Column(columnDefinition = "TEXT")
     private String innovationDescription;
 
     @Column(columnDefinition = "TEXT")
     private String innovationImageUrl;
 
-
-    // ========= SAFETY =========
     @Column(columnDefinition = "TEXT")
     private String safetyDescription;
 
     @Column(columnDefinition = "TEXT")
     private String safetyImageUrl;
 
-
-    // ========= TECH FEATURES =========
     @Column(columnDefinition = "TEXT")
     private String driverAssistanceDescription;
 
@@ -100,33 +88,22 @@ public class Variant {
     @Column(columnDefinition = "TEXT")
     private String parkingAssistanceImageUrl;
 
-
-    // ========= COLOR GALLERIES =========
     @Column(columnDefinition = "TEXT")
     private String colorGalleries;
 
-
-    // ========= SIZE IMAGE =========
     @Column(columnDefinition = "TEXT")
     private String sizeImageUrl;
 
-
-    // ========= TECHNOLOGY IMAGES + DESCRIPTIONS =========
     @Column(name = "technology_images", columnDefinition = "TEXT")
     private String technologyImages;
 
     @Column(name = "technology_descriptions", columnDefinition = "TEXT")
     private String technologyDescriptions;
 
-
-    // ========= OTHER FIELDS =========
     private String transmission;
     private String color;
     private String plateNumber;
     private String decoration;
-
-
-    // ========= GETTERS / SETTERS =========
 
     public Long getId() { return id; }
 

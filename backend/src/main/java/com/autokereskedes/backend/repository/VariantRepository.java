@@ -25,16 +25,11 @@ public interface VariantRepository extends JpaRepository<Variant, Long> {
 
     Optional<Variant> findByModel_IdAndNameIgnoreCase(Long modelId, String name);
 
-    // -------------- KÉPEK A KÜLÖN TÁBLÁKBÓL --------------
-
-    // Külső képek a variant_exterior_images táblából
     @Query(
             value = "SELECT image_url FROM variant_exterior_images WHERE variant_id = :variantId",
             nativeQuery = true
     )
     List<String> findExteriorImagesByVariantId(@Param("variantId") Long variantId);
-
-    // Belső képek a variant_interior_images táblából
     @Query(
             value = "SELECT image_url FROM variant_interior_images WHERE variant_id = :variantId",
             nativeQuery = true

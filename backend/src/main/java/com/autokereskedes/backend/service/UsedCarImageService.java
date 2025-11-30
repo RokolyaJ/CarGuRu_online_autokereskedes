@@ -168,19 +168,20 @@ public void deleteImage(Long imageId) {
 }
 
 
-@Transactional
-public void setAsCover(Long imageId) {
-    UsedCarImage image = repository.findById(imageId)
-            .orElseThrow(() -> new RuntimeException("Kép nem található ID alapján: " + imageId));
+public void reorderImages(Long carId, List<Long> newOrderIds) {
 
-    Long carId = image.getCarId();
-    if (carId == null) {
-        throw new RuntimeException("Ez a kép még nincs autóhoz rendelve!");
+    List<UsedCarImage> images = repository.findByCarIdOrderBySortOrderAsc(carId);
+
+    for (int i = 0; i < newOrderIds.size(); i++) {
+        Long id = newOrderIds.get(i);
+
+        UsedCarImage img = repository.findById(id).orElse(null);
+        if (img != null) {
+            img.setSortOrder(i);
+            repository.save(img);
+        }
     }
-
-    repository.clearCoverForCar(carId);
-
-    image.setCover(true);
-    repository.save(image);
 }
+
+
 }

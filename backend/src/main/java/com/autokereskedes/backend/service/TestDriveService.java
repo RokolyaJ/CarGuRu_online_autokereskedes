@@ -17,17 +17,14 @@ public class TestDriveService {
     }
 
     private void sendEmail(TestDriveRequestDto req) {
-
     String carName = String.format("%s %s %s",
             req.getBrand() != null ? req.getBrand() : "",
             req.getModel() != null ? req.getModel() : "",
             req.getVariant() != null ? req.getVariant() : ""
     ).trim();
-
     SimpleMailMessage msg = new SimpleMailMessage();
     msg.setTo(req.getEmail());
     msg.setSubject("Tesztvezetés visszaigazolás");
-
     msg.setText("""
             Tisztelt %s!
 
@@ -54,7 +51,6 @@ public class TestDriveService {
             req.getStoreName(),
             req.getCity()
     ));
-
     mailSender.send(msg);
 }
 

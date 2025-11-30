@@ -163,10 +163,6 @@ const getLocalImage = (brand, model) => {
                 }}
               />
 
-
-
-
-
                 <h2>{v.model} {v.variant && `– ${v.variant}`}</h2>
                 <p><strong>Ár:</strong> {v.price?.toLocaleString()} Ft</p>
                 <p><strong>Teljesítmény:</strong> {v.powerHp ? `${v.powerHp} LE` : "—"}</p>

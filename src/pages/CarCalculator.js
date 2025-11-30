@@ -458,125 +458,125 @@ const handleDecline = async () => {
         .btn-delete { background: #ef4444; color: white; padding: 8px 12px; border-radius: 8px; border: none; }
 
         .saved-cars {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  margin-top: 1.5rem;
-}
-.saved-car-card {
-  display: flex;
-  background: #fff;
-  border-radius: 1rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-  transition: box-shadow 0.2s ease;
-}
-.saved-car-card:hover {
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
-}
-.saved-car-image img {
-  width: 180px;
-  height: 130px;
-  object-fit: cover;
-}
-.saved-car-info {
-  flex: 1;
-  padding: 1rem 1.5rem;
-}
-.car-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #0070f3;
-  margin-bottom: 0.25rem;
-}
-.seller {
-  color: #666;
-  font-size: 0.9rem;
-  margin-bottom: 0.4rem;
-}
-.car-meta {
-  color: #444;
-  margin-bottom: 0.6rem;
-  font-size: 0.95rem;
-}
-.bottom-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.price {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #111;
-}
-.buttons {
-  display: flex;
-  gap: 0.75rem;
-}
-.config-btn {
-  background: #f5f5f5;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
-  padding: 0.4rem 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.config-btn:hover {
-  background: #e0e0e0;
-}
-.remove-btn {
-  background: none;
-  border: none;
-  color: #d00;
-  font-size: 0.9rem;
-  cursor: pointer;
-  text-decoration: underline;
-}
-  .car-description {
-  margin-top: 8px;
-  background: #f9fafb;
-  padding: 8px 10px;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  color: #444;
-}
-  .message {
-  text-align: center;
-  margin-top: 15px;
-  font-size: 16px;
-  font-weight: 600;
-  transition: opacity 0.5s ease;
-}
-.message.success {
-  color: #22c55e;
-}
-  .trade-buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: 8px;
-}
-.trade-buttons button {
-  flex: 1;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-}
-.trade-buttons .btn-accept {
-  background: #22c55e;
-  color: white;
-}
-.trade-buttons .btn-accept:hover {
-  background: #16a34a;
-}
-.trade-buttons .btn-decline {
-  background: #ef4444;
-  color: white;
-}
-.trade-buttons .btn-decline:hover {
-  background: #dc2626;
-}
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+      }
+      .saved-car-card {
+        display: flex;
+        background: #fff;
+        border-radius: 1rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        transition: box-shadow 0.2s ease;
+      }
+      .saved-car-card:hover {
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+      }
+      .saved-car-image img {
+        width: 180px;
+        height: 130px;
+        object-fit: cover;
+      }
+      .saved-car-info {
+        flex: 1;
+        padding: 1rem 1.5rem;
+      }
+      .car-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #0070f3;
+        margin-bottom: 0.25rem;
+      }
+      .seller {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 0.4rem;
+      }
+      .car-meta {
+        color: #444;
+        margin-bottom: 0.6rem;
+        font-size: 0.95rem;
+      }
+      .bottom-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .price {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #111;
+      }
+      .buttons {
+        display: flex;
+        gap: 0.75rem;
+      }
+      .config-btn {
+        background: #f5f5f5;
+        border: 1px solid #ccc;
+        border-radius: 0.5rem;
+        padding: 0.4rem 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .config-btn:hover {
+        background: #e0e0e0;
+      }
+      .remove-btn {
+        background: none;
+        border: none;
+        color: #d00;
+        font-size: 0.9rem;
+        cursor: pointer;
+        text-decoration: underline;
+      }
+        .car-description {
+        margin-top: 8px;
+        background: #f9fafb;
+        padding: 8px 10px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        color: #444;
+      }
+        .message {
+        text-align: center;
+        margin-top: 15px;
+        font-size: 16px;
+        font-weight: 600;
+        transition: opacity 0.5s ease;
+      }
+      .message.success {
+        color: #22c55e;
+      }
+        .trade-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 8px;
+      }
+      .trade-buttons button {
+        flex: 1;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+      }
+      .trade-buttons .btn-accept {
+        background: #22c55e;
+        color: white;
+      }
+      .trade-buttons .btn-accept:hover {
+        background: #16a34a;
+      }
+      .trade-buttons .btn-decline {
+        background: #ef4444;
+        color: white;
+      }
+      .trade-buttons .btn-decline:hover {
+        background: #dc2626;
+      }
 
       `}</style>
 
@@ -712,7 +712,7 @@ const handleDecline = async () => {
             }}
           >
             {car.status === "ACCEPTED"
-              ? "✅ Elfogadva"
+              ? "Elfogadva"
               : car.status === "DECLINED"
               ? "Elutasítva"
               : "Függőben"}

@@ -47,8 +47,7 @@ export default function UsedCarDetails() {
         setReservedById(data.reservedById);
         setUserHasReserved(data.userHasReserved);
 
-        const first = (data?.images && data.images[0]) || "/placeholder.png";
-        setActiveImg(first);
+       
       })
       .catch((e) => setErr(e?.response?.data?.message || "Hiba történt."))
       .finally(() => alive && setLoading(false));
@@ -57,6 +56,18 @@ export default function UsedCarDetails() {
       alive = false;
     };
   }, [id]);
+const [images, setImages] = useState([]);
+
+useEffect(() => {
+  api.get(`/api/images/${id}`)
+    .then(({ data }) => {
+      setImages(data);
+      if (data.length > 0) {
+        setActiveImg(API_BASE_URL + data[0].image);
+      }
+    })
+    .catch((err) => console.error("Hiba a képek betöltésekor:", err));
+}, [id]);
 
   const title = useMemo(() => {
     if (!car) return "";
@@ -112,15 +123,13 @@ export default function UsedCarDetails() {
       ? `${n.toLocaleString("hu-HU")} Ft`
       : n || "Ár nem elérhető";
 
-  const stat = (icon, label, value) => (
-    <div style={cards.stat}>
-      <div style={cards.statIcon}>{icon}</div>
-      <div style={cards.statText}>
-        <div style={cards.statLabel}>{label}</div>
-        <div style={cards.statValue}>{value ?? "-"}</div>
-      </div>
-    </div>
-  );
+  const stat = (label, value) => (
+  <div style={cards.stat}>
+    <div style={cards.statLabel}>{label}</div>
+    <div style={cards.statValue}>{value ?? "-"}</div>
+  </div>
+);
+
 
   const reserveBtn = {
     padding: "12px 20px",
@@ -251,24 +260,23 @@ export default function UsedCarDetails() {
         </div>
         <section style={sx.galleryWrap}>
           <div style={sx.thumbs}>
-            {(car.images?.length ? car.images : ["/placeholder.png"]).map(
-              (src, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveImg(src)}
-                  style={{
-                    ...sx.thumb,
-                    outline:
-                      src === activeImg
-                        ? "2px solid #ef530f"
-                        : "1px solid #eee",
-                  }}
-                >
-                  <img src={src} alt={`kép ${i + 1}`} style={sx.thumbImg} />
-                </button>
-              )
-            )}
-          </div>
+  {images.map((img) => (
+    <button
+      key={img.id}
+      onClick={() => setActiveImg(API_BASE_URL + img.image)}
+      style={{
+        ...sx.thumb,
+        outline:
+          API_BASE_URL + img.image === activeImg
+            ? "2px solid #ef530f"
+            : "1px solid #eee",
+      }}
+    >
+      <img src={API_BASE_URL + img.image} style={sx.thumbImg} />
+    </button>
+  ))}
+</div>
+
 
           <div style={{ ...sx.mainImgWrap, position: "relative" }}>
             <img src={activeImg} alt={`${title} - kép`} style={sx.mainImg} />
@@ -584,7 +592,8 @@ const btn = {
 const cards = {
   row: {
     display: "grid",
-    gridTemplateColumns: "320px 1fr",
+    gridTemplateColumns: "260px 1fr",
+
     gap: 16,
     marginTop: 16,
   },
@@ -606,29 +615,29 @@ const cards = {
     borderRadius: 12,
     padding: 12,
     display: "grid",
-    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
+
     gap: 12,
     alignItems: "stretch",
   },
   stat: {
-    display: "grid",
-    gridTemplateColumns: "36px 1fr",
-    gap: 10,
-    alignItems: "center",
-    border: "1px dashed #EEF0F2",
-    borderRadius: 12,
-    padding: 10,
-  },
-  statIcon: {
-    width: 36,
-    height: 36,
-    display: "grid",
-    placeItems: "center",
-    background: "#F2F4F7",
-    borderRadius: 10,
-    color: "#344054",
-    fontSize: 18,
-  },
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  border: "1px dashed #EEF0F2",
+  borderRadius: 12,
+  padding: "10px 14px",
+},
+statLabel: {
+  color: "#667085",
+  fontSize: 13,
+  fontWeight: 600,
+},
+statValue: {
+  fontWeight: 800,
+  fontSize: 15,
+},
+
   statText: { display: "flex", flexDirection: "column" },
   statLabel: { color: "#667085", fontSize: 12, fontWeight: 600 },
   statValue: { fontWeight: 800 },

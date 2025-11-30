@@ -70,6 +70,8 @@ public class User implements UserDetails {
 @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 @JsonIgnore
 private List<TradeIn> tradeIns;
+@Column(name = "profile_image")
+private String profileImage;
 
 @ManyToMany
 @JoinTable(
@@ -295,4 +297,12 @@ public void setFavorites(List<UsedCar> favorites) {
     public boolean isEnabled() { 
         return true; 
     }
+    public String getProfileImage() {
+    return profileImage;
+}
+
+public void setProfileImage(String profileImage) {
+    this.profileImage = profileImage;
+}
+
 }

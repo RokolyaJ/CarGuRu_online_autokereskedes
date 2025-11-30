@@ -3,6 +3,7 @@ package com.autokereskedes.backend.service;
 import com.autokereskedes.backend.dto.*;
 import com.autokereskedes.backend.model.UsedCar;
 import com.autokereskedes.backend.model.UsedCarFeatures;
+import com.autokereskedes.backend.model.UsedCarImage;
 import com.autokereskedes.backend.model.UsedCarSpecs;
 import com.autokereskedes.backend.model.User;
 
@@ -58,7 +59,6 @@ public class UsedCarService {
                 .toList();
     }
     public UsedCarDetailDto details(Long id, Long userId, boolean isAdmin) {
-
     UsedCar car = repo.findById(id)
             .orElseThrow(() -> new NoSuchElementException("A megadott autó nem található."));
     User owner = car.getOwner();
@@ -333,6 +333,6 @@ public class UsedCarService {
     );
 }
 
-    
+  
 
 }

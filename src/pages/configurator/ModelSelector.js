@@ -21,11 +21,15 @@ function ModelSelector() {
   const { setSelectedModel } = useContext(ConfigContext);
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE_URL}/api/models/by-brand/${brand}`)
-      .then((res) => setModels(res.data))
-      .catch((err) => console.error("Hiba a modellek lekérésekor:", err));
-  }, [brand]);
+  axios
+    .get(`${API_BASE_URL}/api/models/by-brand/${brand}`)
+    .then((res) => {
+      console.log("BACKEND MODELS RAW:", res.data);  
+      setModels(res.data);
+    })
+    .catch((err) => console.error("Hiba a modellek lekérésekor:", err));
+}, [brand]);
+
 
   const handleModelClick = (model) => {
     setSelectedModel(model);

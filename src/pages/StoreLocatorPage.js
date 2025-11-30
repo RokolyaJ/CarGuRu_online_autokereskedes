@@ -241,7 +241,6 @@ const StoreLocatorPage = () => {
         )}
       </div>
 
-      {/* MAP */}
       <div style={{ flex: 1 }}>
         <MapContainer
           center={defaultPosition}

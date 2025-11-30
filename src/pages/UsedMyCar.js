@@ -18,22 +18,58 @@ api.interceptors.request.use((config) => {
 
   return config;
 });
+const buildUrl = (pathOrUrl) => {
+  if (!pathOrUrl) return "/placeholder.png";
+
+  if (pathOrUrl.startsWith("http")) return pathOrUrl;
+
+  const BASE = window.location.origin.includes("localhost")
+    ? "http://localhost:8080"
+    : "https://carguru-online-autokereskedes.onrender.com";
+
+  return `${BASE}${pathOrUrl}`;
+};
 
 const UsedMyCar = () => {
   const [cars, setCars] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    api
-      .get("/usedcars/mine")
-      .then((res) => {
-        console.log("Autók lekérve:", res.data);
-        setCars(res.data);
-      })
-      .catch((err) => {
-        console.error("Hiba a lekéréskor:", err);
-      });
-  }, []);
+  const loadCars = async () => {
+    try {
+      const res = await api.get("/usedcars/mine");
+      const carsData = res.data;
+
+      const carsWithImages = await Promise.all(
+        carsData.map(async (car) => {
+          try {
+            const imgRes = await api.get(`/images/${car.id}`);
+            const img0 = imgRes.data[0] || {};
+            const firstImage =
+              img0.url || img0.image || img0.imageUrl || null;
+
+            return {
+              ...car,
+              thumbnail: firstImage || car.imageUrl || null,
+            };
+          } catch (e) {
+            console.error("Képhiba ennél az autónál:", car.id, e);
+            return { ...car, thumbnail: car.imageUrl || null };
+          }
+        })
+      );
+
+      console.log("Autók + képek:", carsWithImages);
+      setCars(carsWithImages);
+    } catch (err) {
+      console.error("Hiba a lekéréskor:", err);
+    }
+  };
+
+  loadCars();
+}, []);
+
+
 
   const handleDelete = async (id) => {
     const ok = window.confirm("Biztosan törölni szeretnéd a hirdetést?");
@@ -60,17 +96,13 @@ const UsedMyCar = () => {
           {cars.map((car) => (
             <div key={car.id} style={styles.card}>
               <div style={styles.imageWrapper}>
-                <img
-                  src={
-  car.imageUrl
-    ? `${API_BASE_URL}${car.imageUrl}`
-    : car.image
-      ? `${API_BASE_URL}${car.image}`
-      : "/placeholder.png"
-}
-                  alt={`${car.brand} ${car.model}`}
-                  style={styles.image}
-                />
+              <img
+                src={buildUrl(car.thumbnail || car.imageUrl)}
+                alt={`${car.brand} ${car.model}`}
+                style={styles.image}
+              />
+
+
               </div>
 
               <div style={styles.details}>

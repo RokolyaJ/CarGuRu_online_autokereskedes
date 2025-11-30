@@ -6,102 +6,92 @@ import { API_BASE_URL } from "../../apiConfig";
 
 function Appearance() {
   const { brand, model, variantId } = useParams();
-  const [appearances, setAppearances] = useState([]);
-  const [selected, setSelected] = useState(null);
   const navigate = useNavigate();
   const { setSelectedAppearance } = useContext(ConfigContext);
 
-  useEffect(() => {
-    axios
-      .get(`${API_BASE_URL}/api/appearance/variant/${variantId}`)
-      .then((res) => {
-        const uniqueColors = [];
-        const uniqueAppearances = res.data.filter((item) => {
-          if (!uniqueColors.includes(item.color.toLowerCase())) {
-            uniqueColors.push(item.color.toLowerCase());
-            return true;
-          }
-          return false;
-        });
+  const [variant, setVariant] = useState(null);
+  const [colorKeys, setColorKeys] = useState([]);
+  const [colorGalleries, setColorGalleries] = useState({});
+  const [activeColor, setActiveColor] = useState(null);
+  const [colorIndex, setColorIndex] = useState(0);
 
-        setAppearances(uniqueAppearances);
-        if (uniqueAppearances.length > 0) {
-          setSelected(uniqueAppearances[0]);
-        }
-      })
-      .catch((err) => console.error("Hiba a megjelenések lekérésekor:", err));
+  useEffect(() => {
+    axios.get(`${API_BASE_URL}/api/variants/${variantId}`).then((res) => {
+      const v = res.data;
+
+      setVariant(v);
+      const cg = v.colorGalleries || {};
+
+      setColorGalleries(cg);
+      setColorKeys(Object.keys(cg));
+
+      const first = Object.keys(cg)[0] || null;
+      setActiveColor(first);
+      setColorIndex(0);
+    });
   }, [variantId]);
 
-  const handleNext = () => {
-    if (selected) {
-      setSelectedAppearance({
-        color: selected.color,
-        wheels: selected.wheel,
-        interior: selected.interior,
-        price: selected.price,
-        imageUrl: `${API_BASE_URL}${selected.imageUrl}`,
-      });
-      navigate(`/configurator/${brand}/${model}/${variantId}/equipment`);
-    }
+  const next = () => {
+    if (!activeColor) return;
+    const imgs = colorGalleries[activeColor] || [];
+    setColorIndex((prev) => (prev + 1) % imgs.length);
   };
+
+  const prev = () => {
+    if (!activeColor) return;
+    const imgs = colorGalleries[activeColor] || [];
+    setColorIndex((prev) => (prev - 1 + imgs.length) % imgs.length);
+  };
+
+  const handleNext = () => {
+    setSelectedAppearance({
+      color: activeColor,
+      imageUrl: colorGalleries[activeColor][0],
+    });
+    navigate(`/configurator/${brand}/${model}/${variantId}/equipment`);
+  };
+
+  if (!variant || colorKeys.length === 0)
+    return <p style={{ marginTop: "150px", textAlign: "center" }}>Betöltés...</p>;
+
+  const images = colorGalleries[activeColor] || [];
 
   return (
     <div style={styles.container}>
       <h1 style={styles.title}>Megjelenés kiválasztása</h1>
 
-      <div style={styles.content}>
-        <div style={styles.imageWrapper}>
-          {selected?.imageUrl ? (
-            <img
-              src={`${API_BASE_URL}${selected.imageUrl}`}
-              alt={selected.color}
-              style={styles.image}
-              onError={(e) => {
-                e.target.style.display = "none";
-                console.error("Nem található kép:", selected.imageUrl);
-              }}
-            />
-          ) : (
-            <p>Nincs kép elérhető ehhez a megjelenéshez.</p>
-          )}
-        </div>
+      <div style={styles.viewerBox}>
+        <button style={styles.arrowLeft} onClick={prev}>‹</button>
 
-        <div style={styles.colorsGrid}>
-          {appearances.map((item) => (
-            <div
-              key={item.id}
-              style={{
-                ...styles.colorCard,
-                border:
-                  selected?.id === item.id
-                    ? "2px solid #28f5a1"
-                    : "1px solid #ccc",
-              }}
-              onClick={() => setSelected(item)}
-            >
-              <div style={styles.colorCircleWrapper}>
-                <div
-                  style={{
-                    ...styles.colorCircle,
-                    backgroundColor: item.color.toLowerCase(),
-                  }}
-                ></div>
-              </div>
-              <div style={styles.colorName}>{item.color}</div>
-              <div style={styles.colorPrice}>
-                {item.price > 0
-                  ? `${item.price.toLocaleString()} Ft`
-                  : "Alap szín"}
-              </div>
-            </div>
-          ))}
-        </div>
+        <img
+          src={images[colorIndex]}
+          alt={activeColor}
+          style={styles.mainImage}
+        />
+
+        <button style={styles.arrowRight} onClick={next}>›</button>
+      </div>
+
+      <div style={styles.swatches}>
+        {colorKeys.map((c) => (
+          <button
+            key={c}
+            onClick={() => {
+              setActiveColor(c);
+              setColorIndex(0);
+            }}
+            style={{
+              ...styles.swatch,
+              ...(activeColor === c ? styles.swatchActive : {}),
+              background: c,
+            }}
+            title={c}
+          />
+        ))}
       </div>
 
       <div style={styles.footerBar}>
-        <div>
-          <strong>Választott szín:</strong> {selected ? selected.color : "–"}
-        </div>
+        <strong>Választott szín:</strong> {activeColor}
         <button style={styles.button} onClick={handleNext}>
           Tovább
         </button>
@@ -112,94 +102,91 @@ function Appearance() {
 
 const styles = {
   container: {
+    padding: "120px 20px 160px",
     maxWidth: "1400px",
     margin: "0 auto",
-    padding: "100px 20px 160px",
   },
   title: {
+    textAlign: "center",
     fontSize: "32px",
-    marginBottom: "40px",
-    textAlign: "center",
-  },
-  content: {
-    display: "flex",
-    gap: "60px",
-    alignItems: "flex-start",
-    justifyContent: "flex-start",
-    flexWrap: "nowrap",
-  },
-  imageWrapper: {
-    position: "fixed",
-    top: "120px",
-    left: "40px",
-    width: "600px",
-    zIndex: 10,
-  },
-  image: {
-    width: "100%",
-    maxWidth: "100%",
-    borderRadius: "12px",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-  },
-  colorsGrid: {
-    marginLeft: "700px",
-    flex: "1 1 auto",
-    display: "flex",
-    flexDirection: "column",
-    gap: "20px",
-  },
-  colorCard: {
-    padding: "16px",
-    borderRadius: "10px",
-    cursor: "pointer",
-    backgroundColor: "#f9f9f9",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-    textAlign: "center",
-  },
-  colorName: {
     fontWeight: "bold",
-    textTransform: "capitalize",
-    marginTop: "8px",
+    marginBottom: "40px",
   },
-  colorPrice: {
-    fontSize: "14px",
-    marginTop: "4px",
-    color: "#555",
+  viewerBox: {
+    position: "relative",
+    textAlign: "center",
+    marginBottom: "40px",
   },
-  colorCircleWrapper: {
+  mainImage: {
+    width: "100%",
+    maxWidth: "900px",
+    borderRadius: "16px",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+  },
+  arrowLeft: {
+    position: "absolute",
+    top: "50%",
+    left: "5%",
+    transform: "translateY(-50%)",
+    background: "rgba(0,0,0,0.6)",
+    color: "#fff",
+    border: "none",
+    borderRadius: "50%",
+    width: 40,
+    height: 40,
+    fontSize: 22,
+    cursor: "pointer",
+  },
+  arrowRight: {
+    position: "absolute",
+    top: "50%",
+    right: "5%",
+    transform: "translateY(-50%)",
+    background: "rgba(0,0,0,0.6)",
+    color: "#fff",
+    border: "none",
+    borderRadius: "50%",
+    width: 40,
+    height: 40,
+    fontSize: 22,
+    cursor: "pointer",
+  },
+  swatches: {
     display: "flex",
     justifyContent: "center",
+    gap: "16px",
+    marginBottom: "40px",
   },
-  colorCircle: {
-    width: "32px",
-    height: "32px",
+  swatch: {
+    width: "48px",
+    height: "48px",
     borderRadius: "50%",
-    border: "1px solid #aaa",
+    border: "2px solid #ccc",
+    cursor: "pointer",
+  },
+  swatchActive: {
+    border: "3px solid #000",
   },
   footerBar: {
     position: "fixed",
     bottom: 0,
     left: 0,
     width: "100%",
-    backgroundColor: "#003d2c",
-    color: "#fff",
+    background: "#003d2c",
     padding: "20px",
+    color: "#fff",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    fontSize: "16px",
-    boxSizing: "border-box",
-    zIndex: 100,
   },
   button: {
-    backgroundColor: "#28f5a1",
+    background: "#28f5a1",
     color: "#000",
-    padding: "10px 28px",
-    fontWeight: "bold",
+    padding: "10px 20px",
     borderRadius: "8px",
-    border: "none",
+    fontWeight: "bold",
     cursor: "pointer",
-    fontSize: "16px",
+    border: "none",
   },
 };
 

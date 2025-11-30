@@ -146,7 +146,7 @@ public class VariantController {
 
         map.put("interiorDescription", v.getInteriorDescription());
         map.put("interiorImageUrl", v.getInteriorImageUrl());
-map.put("interiorImages", parseJsonList(v.getInteriorImages()));
+        map.put("interiorImages", parseJsonList(v.getInteriorImages()));
 
         map.put("innovationDescription", v.getInnovationDescription());
         map.put("innovationImageUrl", v.getInnovationImageUrl());
@@ -212,7 +212,6 @@ map.put("interiorImages", parseJsonList(v.getInteriorImages()));
     if (json == null || json.isBlank()) return Collections.emptyList();
 
     try {
-        // Ha single quote van benne → JSON hibás → javítjuk
         if (json.contains("'")) {
             json = json.replace("'", "\"");
         }

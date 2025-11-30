@@ -9,7 +9,14 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/images")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+@CrossOrigin(
+    origins = {
+        "http://localhost:3000",
+        "https://carguru-online-autokereskedes.onrender.com"
+    },
+    allowCredentials = "true"
+)
+
 public class UsedCarImageController {
 
     private final UsedCarImageService imageService;
@@ -115,18 +122,25 @@ public ResponseEntity<?> deleteImage(@PathVariable Long imageId) {
     }
 }
 
-@PostMapping("/{imageId}/cover")
-public ResponseEntity<?> setAsCover(@PathVariable Long imageId) {
+@PutMapping("/reorder/{carId}")
+public ResponseEntity<?> reorderImages(
+        @PathVariable Long carId,
+        @RequestBody Map<String, List<Long>> body) {
+
+    List<Long> newOrder = body.get("images");
+
+    if (newOrder == null || newOrder.isEmpty()) {
+        return ResponseEntity.badRequest().body("Üres lista!");
+    }
+
     try {
-        imageService.setAsCover(imageId);
-        return ResponseEntity.ok("Borítókép sikeresen beállítva!");
+        imageService.reorderImages(carId, newOrder);
+        return ResponseEntity.ok("Sorrend sikeresen elmentve!");
     } catch (Exception e) {
         e.printStackTrace();
         return ResponseEntity.internalServerError()
-                .body("Hiba a borítókép beállítása során: " + e.getMessage());
+                .body("Hiba a sorrend mentése során: " + e.getMessage());
     }
 }
-
-
 
 }
