@@ -7,6 +7,7 @@ COPY mvnw.cmd .
 COPY .mvn .mvn
 COPY pom.xml .
 COPY src ./src
+COPY uploads ./uploads
 
 RUN chmod +x mvnw
 RUN ./mvnw dependency:go-offline -B
